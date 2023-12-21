@@ -1,0 +1,114 @@
+* Luke email
+Thank you for participating in the upcoming NUWEST! 
+I’m writing with some additional details on the format of the event now that we have a full list of technologies to present.
+We are trying to emphasize the hands-on aspect, ideally to the point of participants engaging with individual tools in the context of their own needs. For this, we will have breakout sessions, with short overview talks to allow participants to make a more informed decision on which tools may be of interest.
+
+How you set up your tool-specific track is up to you.  A format we have seen work quite well in our preparations is guided, follow-along-style content (maybe in a Jupyter notebook or similar interaction), and then progressing from there to a more open-ended part of the session. It might also be useful to run through content again or with individuals to accommodate folks who are room-hopping.
+
+We have four breakout rooms and a ballroom at the Crowne Plaza.   In an attempt to balance Python, non-Python, workflows, performance, and other topics, we’ve landed on this schedule:
+
+January 18, 2024 in Albuquerque at the Crowne Plaza
+ 800– 815: introduction, Luke, ballroom
+ 815– 900: keynotes, Bill, lab 20 min each, ballroom
+ 900–1000: Conceptual Overviews
+- CUnumeric and Legion, Charlelie Laurent, Stanford University
+- Parsl -- Python based workflow management, Doug Friedel, Dan Katz, University of Illinois Urbana-Champaign
+- Pragmatic performance-portable solids and fluids with Ratel, libCEED, and PETSc, Jed Brown, University of Colorado Boulder
+- Scalable and portable HPC in Python using Parla and PyKokkos, George Biros, University of Texas at Austin
+1000-1200: code-alongs in break-out rooms
+1200-1300: lunch break
+1300-1400: Conceptual Overviews
+- Acceleration and Abstraction of python based Monte Carlo Compute Kernels for Heterogeneous machines via Numba, Joanna Piper Morgan, Oregon State University
+- MIRGE -- A lazy evaluation framework in Python, Andreas Kloeckner, University of Illinois Urbana-Champaign
+- MPI Advance - Optimizations and Extensions to MPI, Purushotham V. Bangalore, University of Alabama
+- OpenCilk: A Modular and Extensible Software Infrastructure for Fast Task-Parallel Code, Tao Schardl, Massachusetts Institute of Technology
+1400-1600: code-alongs in break-out rooms
+1600-1615: organizational remarks, Luke
+1615-1800: (dinner, on your own)
+1800-1900: informal social @ TBD
+
+Some things to think about as you prepare for the talks/hands-on sessions:
+What prerequisites does your  audience need to fully engage with the material?
+Can you highlight challenges that you encountered in predictive simulation?
+Can you highlight advantages or disadvantages in wider adoption of your approach?
+Where can attendees learn more?
+What computing resources do you need to execute the hands-on material?
+For our own demos we are trying to reduce the complexity as much as possible in order make the content as accessible as possible, while still highlighting the core ideas and potential benefits.  Think appetizers, not entrees.  
+
+We have pushed drafts of our Illinois materials here: https://github.com/illinois-ceesd/nuwest
+
+If you would like your content available here, please issue a pull request and I can add links.  We’ll also post the schedule and some general instructions.
+
+Please let me know if you have additional questions or ideas.
+** Questions
+*** What prerequisites does your  audience need to fully engage with the material?
+CPU or single node CPu
+*** Can you highlight challenges that you encountered in predictive simulation?
+Small kernels, GIL overheads (discussion) - GIL effects (most likely not)
+
+Python overheads
+Positive: rapid prototyping and portability (AMD, CPU, NVIDIA)
+***  Can you highlight advantages or disadvantages in wider adoption of your approach?
+memory, performance, hard to figure overheads...
+
+*** Where can attendees learn more?
+- Github for Parla and PyKokkos, Papers, nuwest git
+  
+*** What computing resources do you need to execute the hands-on material?
+Single node
+
+
+* Slides
+Combine one of the AST meetings Parla/PyKokkos slides
+
+* Material for participangs
+- 3/4 slides per topic
+- github for nuwest
+- Clear instructions on how to install and tutorials  
+- Readme / submodules for Parla & PyKokkos / tutorials /exercises 
+- Combined docker for Parla and Pykokkos 
+  . Multi-GPU/single node-Docker, CPU-Docker
+  
+  
+* PyKokkos
+Installation and intro
+** tutorial
+- syntax 
+- simple for-loop - kokkos views    
+- simple for-loop - cupy/numpy      
+- reduction/atomics
+- Pykokkos profiler  
+** Demo  
+- scan/mst (check CPU and GPU) 
+** Exercises
+- Exercises? (CPU/GPU same example)
+  (k-means implement cupy kernels)
+  
+* Parla
+Installation and intro
+** Tutorial
+- how to install / overview of examples
+- Basic parla programming
+- independent tasks - no data 
+- map reduce - no data  
+- independent tasks - manual data
+- parrays  
+- independent tasks - auto data
+** Demo
+- cholesky example - manual  (run and go over code to explain parla programming, no discussion)
+- cholesky example - auto  (run and go over code to explain parla programming, no discussion)
+- nvtx demo how to run and measure (GPU only)
+- advanced features
+- Combined Parla + PyKokkos (Jimmy simple advection )   (with and without data movement)
+** Exercises
+- Exercises? (one of them should not require GPU)
+  . daxpy 
+  . 1d stencil  w/ parray            *TODO*:George
+  . add collision to Jimmy's kernel  *TODO*: Jimmy add collision exercise (super simple fake math)
+** backup
+  . GIL effects example?
+
+* Exercises
+ use senquential / numpy / cupy  code and convert to Parla / PyKokkos
+
+
