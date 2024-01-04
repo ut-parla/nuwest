@@ -1,0 +1,32 @@
+*.nsys-rep
++*.nsys-cu-rep
++*.nsys-cu
+*.nvvp
+*.nvprof
+*.sqlite3
+*.log
+*.log.*
+*.csv
+*.csv.*
+*.qdrep
+*.qdstrm
+*.qdc
+*.qdn
+
+# Python Artifacts
+*.so
+*.egg
+*.egg-info
+*.pyc
+*.pyo
+*.pyd
+__pycache__
+
+
+
+# Directories
+.pytest_cache/
+.cmake/
+build/
+pk_cpp/
+
