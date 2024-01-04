@@ -84,6 +84,7 @@ async def daxpy_example():
     out = np.empty_like(x)
     truth = np.empty_like(x)
 
+    truth_arr = pk.array(truth)
     x_arr = pk.array(x)
     y_arr = pk.array(y)
     out_arr = pk.array(out)
@@ -93,9 +94,9 @@ async def daxpy_example():
 
     start_t = perf_counter()
     # truth[:] = a * x[:] + y[:]
-    daxpy(0, N, truth, a, x, y)
+    daxpy(0, N, truth_arr, a, x_arr, y_arr)
     end_t = perf_counter()
-    print("Reference: ", end_t - start_t)
+    print("Reference: ", end_t - start_t, flush=True)
 
     start_t = perf_counter()
     T = TaskSpace("Daxpy")
@@ -111,8 +112,10 @@ async def daxpy_example():
     @spawn(T[splits], dependencies=[T[:splits]], placement=cpu, vcus=0)
     def check():
         end_t = perf_counter()
-        print("Parla: ", end_t - start_t)
-        print("Check: ", np.allclose(out, truth))
+        print("Parla: ", end_t - start_t, flush=True)
+        print(out_arr)
+        print(truth_arr)
+        print("Check: ", np.allclose(out, truth), flush=True)
 
     await T
 
