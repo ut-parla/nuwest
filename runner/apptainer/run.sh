@@ -30,10 +30,10 @@ mkdir -p reports
 
 if [ "$2" == "--use-gpu" ]; then
     echo "Running with GPU support..."
-    docker run --runtime=nvidia --gpus all --volume $(pwd):/app --workdir /app utaustin/nuwest python $1
+    docker run --runtime=nvidia --gpus all --volume $(pwd):/app -v /tmp:/tmp --workdir /app utaustin/nuwest python $1
 else
     echo "Running without GPU support..."
-    docker run --volume $(pwd):/app --workdir /app utaustin/nuwest python $1
+    docker run --volume $(pwd):/app -v /tmp:/tmp --workdir /app utaustin/nuwest python $1
 fi
 
 # Apptainer Version --  CPU Only
