@@ -40,7 +40,7 @@ TODO: AMD Container for Tioga
 #### Run a script
 
 ```bash
-./runner/docker/run.sh lessons/parla/scripts/01_hello_world.py
+./runner/docker/run.sh lessons/parla/scripts/01_hello.py
 ```
 This will run the script in the container and print the output to the terminal.
 
@@ -50,7 +50,7 @@ The `--use-gpu` flag is available to run on a GPU-enabled container.
 #### Profile a script
 
 ```bash
-./runner/docker/profile.sh lessons/parla/scripts/01_hello_world.py
+./runner/docker/profile.sh lessons/parla/scripts/01_hello.py
 ```
 The profile trace will be saved to `reports/<script name>.nsys-rep`.
 

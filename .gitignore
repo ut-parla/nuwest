@@ -4,6 +4,8 @@
 *.nvvp
 *.nvprof
 *.sqlite3
+*.sqlite3-journal
+*.sqlite
 *.log
 *.log.*
 *.csv
