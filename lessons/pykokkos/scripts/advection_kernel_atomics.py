@@ -1,7 +1,6 @@
 import pykokkos as pk
 
 @pk.workunit()
-
 def pk_advection_kernel(
     tid,
     Nc, 
