@@ -19,12 +19,12 @@ TODO: depending if we are going to use pykokkos or parla+pykokkos images
 
 We will cover the following features of PyKokkos:
 
-* workunits, i.e., kernels ([example](/scripts/mini_boltzmann_cpu.py))
-* parallel processing, i.e., `parallel_for` ([example](/scripts/mini_boltzmann_cpu.py))
-* interoperability with `numpy` and `cupy` ([example](/scripts/mini_boltzmann_cpu.py))
-* CPU runs ([example](/scripts/mini_boltzmann_cpu.py))
-* GPU runs ([example](/scripts/mini_boltzmann_gpu.py))
-* multi-GPU runs ([example](/scripts/mini_boltzmann_multigpu.py))
+* workunits, i.e., kernels ([example](/lessons/pykokkos/scripts/mini_boltzmann_cpu.py))
+* parallel processing, i.e., `parallel_for` ([example](/lessons/pykokkos/scripts/mini_boltzmann_cpu.py))
+* interoperability with `numpy` and `cupy` ([example](/lessons/pykokkos/scripts/mini_boltzmann_cpu.py))
+* CPU runs ([example](/lessons/pykokkos/scripts/mini_boltzmann_cpu.py))
+* GPU runs ([example](/lessons/pykokkos/scripts/mini_boltzmann_gpu.py))
+* multi-GPU runs ([example](/lessons/pykokkos/scripts/mini_boltzmann_multigpu.py))
 * atomics
 * scratch memory
 * ufuncs
