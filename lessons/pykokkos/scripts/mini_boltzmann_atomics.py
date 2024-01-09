@@ -6,7 +6,7 @@ import sys
 import pykokkos as pk
 pk.set_default_space(pk.Cuda)
 
-from advection_kernel import advect
+from advection_kernel_atomics import advect
 
 
 def main(in_N, in_s):
