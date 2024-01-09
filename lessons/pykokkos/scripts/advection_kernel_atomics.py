@@ -30,7 +30,7 @@ def pk_advection_kernel(
         # Advection in x-space
         d_x += d_v
 
-        # Reflective boundary condition
+        # Reflective boundary condition - count boundary collisions with atomics
         if (d_x > 1):
             pk.atomic_add(d_rhs_count, [0], 1)
             d_x = 1 - (d_x - 1)
