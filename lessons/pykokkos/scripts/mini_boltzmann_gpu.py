@@ -1,27 +1,26 @@
 import argparse
 import numpy as np
 import cupy as cp
-from numba import cuda
-import sys
+
 import pykokkos as pk
 pk.set_default_space(pk.Cuda)
 
 from advection_kernel import advect
 
-
-def main(in_N, in_s):
+def main(in_N, in_steps):
     threads_per_block = 64
     num_blocks = 1024
 
     N = in_N
-    num_steps = in_s
+    num_steps = in_steps
 
-    # Set up data structures on each GPU.
+    # Set up data structures on GPU.
     x_ar = cp.random.rand(N)
     v_ar = 0.01*cp.random.rand(N)
     R_ar = cp.random.rand(N)
     gpu_E_ar = cp.zeros(N)
 
+    # Set up PyKokkos wrappers
     d_x_ar = pk.array(x_ar)
     d_v_ar = pk.array(v_ar)
     d_R_ar = pk.array(R_ar)
@@ -30,17 +29,20 @@ def main(in_N, in_s):
     cpu_E_ar = np.zeros(N)
     
     print("Beginning average position =", cp.mean(x_ar))
+    
     for step in range(num_steps):
-        # Copy EF data from CPU to GPU.
-        gpu_E_ar[:] = cp.asarray(cpu_E_ar[:]) 
-                    
-        # Draw random numbers with CuPy.           
-        R_ar[:] = cp.random.rand(N)            
         
-        # Advect particles.
-        advect(N, d_x_ar, d_v_ar, d_E_ar, d_R_ar, threads_per_block, num_blocks)
-
+        # Draw random numbers with CuPy          
+        R_ar[:] = cp.random.rand(N) 
+        
+        # Generate random electric field
         cpu_E_ar.fill(0.01 * np.random.rand())
+        
+        # Copy electric field data from CPU to GPU
+        gpu_E_ar[:] = cp.asarray(cpu_E_ar[:])     
+        
+        # PyKokkos kernel for particle advection + collision
+        advect(N, d_x_ar, d_v_ar, d_E_ar, d_R_ar, threads_per_block, num_blocks)
 
     print("End average position =", cp.mean(x_ar))
 
