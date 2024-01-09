@@ -1,8 +1,9 @@
 ## PyKokkos Tutorial
 
-In this tutorial, we will showcase the most exciting features of
-PyKokkos.  Further details, examples, and documentation can be found
-on the [PyKokkos web page](https://github.com/kokkos/pykokkos).
+In this tutorial, we will showcase the most important/exciting
+features of PyKokkos.  Further details, examples, and documentation
+can be found on the [PyKokkos web
+page](https://github.com/kokkos/pykokkos).
 
 
 ### Getting Started
