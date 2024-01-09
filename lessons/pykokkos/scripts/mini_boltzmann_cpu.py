@@ -6,7 +6,6 @@ pk.set_default_space(pk.OpenMP)
 
 from advection_kernel import advect
 
-
 def main(in_N, in_steps):
     threads_per_block = 64
     num_blocks = 1024
@@ -14,11 +13,13 @@ def main(in_N, in_steps):
     N = in_N
     num_steps = in_steps
 
+    # Set up data structures on CPU
     x_ar = np.random.rand(N)
     v_ar = 0.01*np.random.rand(N)
     E_ar = np.zeros(N)
     R_ar = np.random.rand(N)
 
+    # Set up PyKokkos wrappers
     d_x_ar = pk.array(x_ar)
     d_v_ar = pk.array(v_ar)
     d_E_ar = pk.array(E_ar)
@@ -27,15 +28,17 @@ def main(in_N, in_steps):
     print("Beginning average position =",np.mean(x_ar))
 
     for step in range(num_steps):
-        R_ar[:] = np.random.rand(N)
-    
-        # Advect particles
-        advect(N, d_x_ar, d_v_ar, d_E_ar, d_R_ar, threads_per_block, num_blocks)
-    
-        # Electric Field
-        E_ar.fill(0.01 * np.random.rand())
 
-    print("End average position =",np.mean(x_ar))
+        # Draw random numbers with CuPy
+        R_ar[:] = np.random.rand(N)
+
+        # Generate random electric field
+        E_ar.fill(0.01 * np.random.rand())
+        
+        # PyKokkos kernel for particle advection + collision
+        advect(N, d_x_ar, d_v_ar, d_E_ar, d_R_ar, threads_per_block, num_blocks)
+
+    print("End average position =", np.mean(x_ar))
 
 
 if __name__ == "__main__":
