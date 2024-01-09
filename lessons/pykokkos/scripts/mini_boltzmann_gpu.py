@@ -14,19 +14,18 @@ def main(in_N, in_steps):
     N = in_N
     num_steps = in_steps
 
-    # Set up data structures on GPU.
+    # Set up data structures
     x_ar = cp.random.rand(N)
     v_ar = 0.01*cp.random.rand(N)
     R_ar = cp.random.rand(N)
     gpu_E_ar = cp.zeros(N)
+    cpu_E_ar = np.zeros(N)
 
     # Set up PyKokkos wrappers
     d_x_ar = pk.array(x_ar)
     d_v_ar = pk.array(v_ar)
     d_R_ar = pk.array(R_ar)
     d_E_ar = pk.array(gpu_E_ar)
-
-    cpu_E_ar = np.zeros(N)
     
     print("Beginning average position =", cp.mean(x_ar))
     
