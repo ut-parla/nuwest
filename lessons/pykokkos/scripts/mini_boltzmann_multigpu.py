@@ -74,7 +74,7 @@ def main(in_gpus, in_particles, in_steps):
             # Draw random numbers with CuPy          
             gpu_R_ar_list[ng][:] = cp.random.rand(N)  
             
-            # Copy EF data from CPU to GPU
+            # Copy electric field data from CPU to GPU
             gpu_E_ar_list[ng][:] = cp.asarray(cpu_E_ar[:]) 
                      
             # PyKokkos kernel for particle advection + collision
