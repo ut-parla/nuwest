@@ -1,17 +1,14 @@
 import argparse
 import numpy as np
 import cupy as cp
-from numba import cuda
-import sys
+
 import pykokkos as pk
 pk.set_default_space(pk.Cuda)
 
 from advection_kernel import advect
 
-
 def main(in_gpus, in_particles, in_steps):
     NUM_GPUS = in_gpus
-
     print("Initializing program to run on", NUM_GPUS, " GPU(s)\n")
 
     threads_per_block = 64
@@ -20,6 +17,7 @@ def main(in_gpus, in_particles, in_steps):
     N = in_particles
     num_steps = in_steps
 
+    # Set up data structures on each GPU
     x_ar_list = []
     v_ar_list = []
     gpu_E_ar_list = []
@@ -29,8 +27,7 @@ def main(in_gpus, in_particles, in_steps):
     d_v_ar_list = []
     d_E_ar_list = []
     d_R_ar_list = []
-
-    # Set up data structures on each GPU.
+    
     for ng in range(NUM_GPUS):
         print("Setting up data structures on GPU", ng)
         cp.cuda.Device(ng).use()
@@ -41,6 +38,7 @@ def main(in_gpus, in_particles, in_steps):
         temp_gpu_E_ar = cp.zeros(N)
         temp_gpu_R_ar = cp.zeros(N)
 
+        # Set up Pykokkos wrappers
         d_temp_x_ar = pk.array(temp_x_ar)
         d_temp_v_ar = pk.array(temp_v_ar)
         d_temp_gpu_E_ar = pk.array(temp_gpu_E_ar)
@@ -63,21 +61,24 @@ def main(in_gpus, in_particles, in_steps):
         print("Beginning average position on GPU", ng, "=", cp.mean(x_ar_list[ng]))
     
     for step in range(num_steps):
-        # Spawn a task on each GPU.
+        
+        # Generate random electric field
+        cpu_E_ar.fill(0.01 * np.random.rand())
+        
+        # Spawn a task on each GPU
         for ng in range(NUM_GPUS):
+            
             cp.cuda.Device(ng).use()
             pk.set_device_id(ng)
-    
-            # Copy EF data from CPU to GPU.
-            gpu_E_ar_list[ng][:] = cp.asarray(cpu_E_ar[:]) 
-                    
-            # Draw random numbers with CuPy.           
-            gpu_R_ar_list[ng][:] = cp.random.rand(N)            
-        
-            # Advect particles.
-            advect(N, d_x_ar_list[ng], d_v_ar_list[ng], d_E_ar_list[ng], d_R_ar_list[ng], threads_per_block, num_blocks)
 
-        cpu_E_ar.fill(0.01 * np.random.rand())
+            # Draw random numbers with CuPy          
+            gpu_R_ar_list[ng][:] = cp.random.rand(N)  
+            
+            # Copy EF data from CPU to GPU
+            gpu_E_ar_list[ng][:] = cp.asarray(cpu_E_ar[:]) 
+                     
+            # PyKokkos kernel for particle advection + collision
+            advect(N, d_x_ar_list[ng], d_v_ar_list[ng], d_E_ar_list[ng], d_R_ar_list[ng], threads_per_block, num_blocks)
 
     for ng in range(NUM_GPUS):
         cp.cuda.Device(ng).use()
