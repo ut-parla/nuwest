@@ -1,5 +1,3 @@
-import math
-import cupy as cp
 import pykokkos as pk
 
 @pk.workunit()
