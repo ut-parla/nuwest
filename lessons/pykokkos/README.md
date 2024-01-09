@@ -41,11 +41,13 @@ will be an exercise for the audience.
 #### Boltzmann Simplified
 
 One of the examples we will be using in this tutorial is a stripped
-down version of the Boltzmann solver.  (We also provide a more
+down version of a particle Boltzmann solver. (We also provide a more
 complete version of the solver in this repository for completeness,
 but we do not discuss the complex version.)
 
-TODO: short explanation of the problem
+We model a system of particles in a 1-D domain. At each timestep, a random electric field is drawn, and then particles
+undergo advection in physical space, advection in velocity space, random reflective collision (which flips the direction of their velocity),
+and reflective collision with the boundary walls.
 
 #### Stencil
 
