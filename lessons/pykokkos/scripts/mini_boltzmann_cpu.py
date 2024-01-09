@@ -13,7 +13,7 @@ def main(in_N, in_steps):
     N = in_N
     num_steps = in_steps
 
-    # Set up data structures on CPU
+    # Set up data structures
     x_ar = np.random.rand(N)
     v_ar = 0.01*np.random.rand(N)
     E_ar = np.zeros(N)
