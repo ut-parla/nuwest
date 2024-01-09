@@ -8,15 +8,15 @@ pk.set_default_space(pk.Cuda)
 
 from advection_kernel import advect
 
-def main(in_N, in_s):
 
+def main(in_N, in_s):
     threads_per_block = 64
     num_blocks = 1024
 
     N = in_N
     num_steps = in_s
 
-    # Set up data structures on each GPU
+    # Set up data structures on each GPU.
     x_ar = cp.random.rand(N)
     v_ar = 0.01*cp.random.rand(N)
     R_ar = cp.random.rand(N)
@@ -31,20 +31,19 @@ def main(in_N, in_s):
     
     print("Beginning average position =", cp.mean(x_ar))
     for step in range(num_steps):
-        # Copy EF data from CPU to GPU
+        # Copy EF data from CPU to GPU.
         gpu_E_ar[:] = cp.asarray(cpu_E_ar[:]) 
                     
-        # Draw random numbers with CuPy           
+        # Draw random numbers with CuPy.           
         R_ar[:] = cp.random.rand(N)            
         
-        # Advect particles
+        # Advect particles.
         advect(N, d_x_ar, d_v_ar, d_E_ar, d_R_ar, threads_per_block, num_blocks)
 
         cpu_E_ar.fill(0.01 * np.random.rand())
 
     print("End average position =", cp.mean(x_ar))
 
-    print("Complete, exiting.") 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

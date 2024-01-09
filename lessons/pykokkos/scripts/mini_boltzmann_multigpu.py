@@ -8,8 +8,8 @@ pk.set_default_space(pk.Cuda)
 
 from advection_kernel import advect
 
-def main(in_gpus, in_particles, in_steps):
 
+def main(in_gpus, in_particles, in_steps):
     NUM_GPUS = in_gpus
 
     print("Initializing program to run on", NUM_GPUS, " GPU(s)\n")
@@ -30,7 +30,7 @@ def main(in_gpus, in_particles, in_steps):
     d_E_ar_list = []
     d_R_ar_list = []
 
-    # Set up data structures on each GPU
+    # Set up data structures on each GPU.
     for ng in range(NUM_GPUS):
         print("Setting up data structures on GPU", ng)
         cp.cuda.Device(ng).use()
@@ -63,18 +63,18 @@ def main(in_gpus, in_particles, in_steps):
         print("Beginning average position on GPU", ng, "=", cp.mean(x_ar_list[ng]))
     
     for step in range(num_steps):
-        # Spawn a task on each GPU
+        # Spawn a task on each GPU.
         for ng in range(NUM_GPUS):
             cp.cuda.Device(ng).use()
             pk.set_device_id(ng)
     
-            # Copy EF data from CPU to GPU
+            # Copy EF data from CPU to GPU.
             gpu_E_ar_list[ng][:] = cp.asarray(cpu_E_ar[:]) 
                     
-            # Draw random numbers with CuPy           
+            # Draw random numbers with CuPy.           
             gpu_R_ar_list[ng][:] = cp.random.rand(N)            
         
-            # Advect particles
+            # Advect particles.
             advect(N, d_x_ar_list[ng], d_v_ar_list[ng], d_E_ar_list[ng], d_R_ar_list[ng], threads_per_block, num_blocks)
 
         cpu_E_ar.fill(0.01 * np.random.rand())
@@ -83,7 +83,7 @@ def main(in_gpus, in_particles, in_steps):
         cp.cuda.Device(ng).use()
         print("End average position on GPU", ng, "=", cp.mean(x_ar_list[ng]))
 
-    print("Complete, exiting.") 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-g", "--num_gpus", type=int, default=1)
