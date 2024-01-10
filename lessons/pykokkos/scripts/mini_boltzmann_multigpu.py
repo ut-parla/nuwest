@@ -22,11 +22,6 @@ def main(in_gpus, in_particles, in_steps):
     v_ar_list = []
     gpu_E_ar_list = []
     gpu_R_ar_list = []
-
-    d_x_ar_list = []
-    d_v_ar_list = []
-    d_E_ar_list = []
-    d_R_ar_list = []
     
     for ng in range(NUM_GPUS):
         print("Setting up data structures on GPU", ng)
@@ -36,24 +31,13 @@ def main(in_gpus, in_particles, in_steps):
         temp_x_ar = cp.random.rand(N)
         temp_v_ar = 0.01*cp.random.rand(N)
         temp_gpu_E_ar = cp.zeros(N)
-        temp_gpu_R_ar = cp.zeros(N)
-
-        # Set up Pykokkos wrappers
-        d_temp_x_ar = pk.array(temp_x_ar)
-        d_temp_v_ar = pk.array(temp_v_ar)
-        d_temp_gpu_E_ar = pk.array(temp_gpu_E_ar)
-        d_temp_gpu_R_ar = pk.array(temp_gpu_R_ar)
+        temp_R_ar = cp.zeros(N)
 
         x_ar_list.append(temp_x_ar)
         v_ar_list.append(temp_v_ar)
         gpu_E_ar_list.append(temp_gpu_E_ar)
-        gpu_R_ar_list.append(temp_gpu_R_ar)
+        R_ar_list.append(temp_gpu_R_ar)
 
-        d_x_ar_list.append(d_temp_x_ar) 
-        d_v_ar_list.append(d_temp_v_ar) 
-        d_E_ar_list.append(d_temp_gpu_E_ar)
-        d_R_ar_list.append(d_temp_gpu_R_ar)
-        
     cpu_E_ar = np.zeros(N)
     
     for ng in range(NUM_GPUS):
@@ -72,13 +56,13 @@ def main(in_gpus, in_particles, in_steps):
             pk.set_device_id(ng)
 
             # Draw random numbers with CuPy          
-            gpu_R_ar_list[ng][:] = cp.random.rand(N)  
+            R_ar_list[ng][:] = cp.random.rand(N)  
             
             # Copy electric field data from CPU to GPU
             gpu_E_ar_list[ng][:] = cp.asarray(cpu_E_ar[:]) 
                      
             # PyKokkos kernel for particle advection + collision
-            advect(N, d_x_ar_list[ng], d_v_ar_list[ng], d_E_ar_list[ng], d_R_ar_list[ng], threads_per_block, num_blocks)
+            advect(N, x_ar_list[ng], v_ar_list[ng], gpu_E_ar_list[ng], R_ar_list[ng], threads_per_block, num_blocks)
 
     for ng in range(NUM_GPUS):
         cp.cuda.Device(ng).use()
