@@ -7,7 +7,7 @@ set_numpy_threads(args.threads)
 import numpy as np
 from helper import (
     run,
-    jacobi as jacobi_step,
+    # jacobi as jacobi_step,
     move_to_cpu,
     move_to_gpu,
     load_domain,
@@ -17,58 +17,14 @@ from helper import (
     plot_domain,
 )
 import os
-import numba
 import time
 
 from parla import Parla
 from parla.tasks import spawn, AtomicTaskSpace as TaskSpace, specialize, Tasks
 from parla.devices import cpu, gpu
 from parla.array import PArray, asarray_batch
-from numba import cuda
 
 import cupy as cp
-
-
-@specialize
-@numba.njit(parallel=True)
-def jacobi(a0, a1):
-    """
-    CPU code to perform a single step in the Jacobi iteration.
-    """
-    a1[1:-1, 1:-1] = 0.25 * (
-        a0[2:, 1:-1] + a0[:-2, 1:-1] + a0[1:-1, 2:] + a0[1:-1, :-2]
-    )
-
-
-@jacobi.variant(gpu)
-def jacobi_gpu(a0, a1):
-    """
-    GPU kernel call to perform a single step in the Jacobi iteration.
-    """
-    threads_per_block_x = 32
-    threads_per_block_y = 1024 // threads_per_block_x
-    blocks_per_grid_x = (a0.shape[0] + (threads_per_block_x - 1)) // threads_per_block_x
-    blocks_per_grid_y = (a0.shape[1] + (threads_per_block_y - 1)) // threads_per_block_y
-
-    cp_stream = cp.cuda.get_current_stream()
-    nb_stream = stream_cupy_to_numba(cp_stream)
-
-    gpu_jacobi_kernel[
-        (blocks_per_grid_x, blocks_per_grid_y),
-        (threads_per_block_x, threads_per_block_y),
-        nb_stream,
-    ](a0, a1)
-    nb_stream.synchronize()
-
-
-@cuda.jit
-def gpu_jacobi_kernel(a0, a1):
-    """
-    Actual CUDA kernel to do a single step.
-    """
-    i, j = cuda.grid(2)
-    if 0 < i < a1.shape[0] - 1 and 0 < j < a1.shape[1] - 1:
-        a1[i, j] = 0.25 * (a0[i - 1, j] + a0[i + 1, j] + a0[i, j - 1] + a0[i, j + 1])
 
 
 def block_jacobi(
@@ -89,17 +45,27 @@ def block_jacobi(
 
     T = TaskSpace("Jacobi")
 
+    for i in range(args.workers):
+        input_domain[i].set_name(f"input_domain_{i}")
+        output_domain[i].set_name(f"output_domain_{i}")
+    shape = input_domain[i].shape
+    print(f"Shape: {shape}", flush=True)
+    size = shape[0]
+
     for iter in range(iterations):
         for i in range(args.workers):
             # Dependencies
-            self = [T[iter - 1, i]]
-            left = [T[iter - 1, i - 1]] if i > 0 else []
-            right = [T[iter - 1, i + 1]] if i < args.workers - 1 else []
-            dependencies = self + left + right
+            if iter > 0:
+                self = [T[:iter, i]]
+                left = [T[:iter, i - 1]] if i > 0 else []
+                right = [T[:iter, i + 1]] if i < args.workers - 1 else []
+                dependencies = self + left + right
+            else:
+                dependencies = []
 
             # Dataflow
             read_interior = [input_domain[i]]
-            read_left_boundary = [input_domain[i - 1][-2]] if i > 0 else []
+            read_left_boundary = [input_domain[i - 1][size - 2]] if i > 0 else []
             read_right_boundary = (
                 [input_domain[i + 1][1]] if i < args.workers - 1 else []
             )
@@ -122,22 +88,22 @@ def block_jacobi(
                 interior_write = output_domain[i].array
 
                 if i > 0:
-                    input_domain[i][0] = input_domain[i - 1][-2]
+                    input_domain[i][0] = input_domain[i - 1][size - 2]
                 else:
                     interior_read = input_domain[i][1:].array
                     interior_write = output_domain[i][1:].array
 
                 if i < args.workers - 1:
-                    input_domain[i][-1] = input_domain[i + 1][1]
+                    input_domain[i][size - 1] = input_domain[i + 1][1]
                 else:
-                    interior_read = input_domain[i][:-1].array
-                    interior_write = output_domain[i][:-1].array
+                    interior_read = input_domain[i][: (size - 1)].array
+                    interior_write = output_domain[i][: (size - 1)].array
 
-                interior_write = jacobi(interior_read, interior_write)
+                # interior_write = jacobi(interior_read, interior_write)
 
         output_domain, input_domain = input_domain, output_domain
 
-    T.wait()
+        T.wait()
 
 
 async def test_blocked_jacobi():
@@ -150,8 +116,8 @@ async def test_blocked_jacobi():
     A_blocked_in = block_domain(A, n_blocks=args.workers, boundary_width=1)
     A_blocked_out = block_domain(A, n_blocks=args.workers, boundary_width=1)
 
-    A_blocked_in = asarray_batch(A_blocked_in)
-    A_blocked_out = asarray_batch(A_blocked_out)
+    A_blocked_in = asarray_batch(A_blocked_in, base="in")
+    A_blocked_out = asarray_batch(A_blocked_out, base="out")
 
     start_t = time.perf_counter()
     block_jacobi(A_blocked_in, A_blocked_out, iterations=args.max_iterations)
