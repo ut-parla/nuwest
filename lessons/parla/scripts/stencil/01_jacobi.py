@@ -27,7 +27,7 @@ from parla.array import PArray, asarray_batch
 import cupy as cp
 
 
-def block_jacobi(
+async def block_jacobi(
     input_domain: List[PArray],
     output_domain: List[PArray],
     iterations: int = args.max_iterations,
@@ -43,8 +43,6 @@ def block_jacobi(
 
     assert iterations % 2 == 0, "Number of iterations must be even"
 
-    T = TaskSpace("Jacobi")
-
     for i in range(args.workers):
         input_domain[i].set_name(f"input_domain_{i}")
         output_domain[i].set_name(f"output_domain_{i}")
@@ -52,6 +50,7 @@ def block_jacobi(
     print(f"Shape: {shape}", flush=True)
     size = shape[0]
 
+    T = TaskSpace("Jacobi")
     for iter in range(iterations):
         for i in range(args.workers):
             # Dependencies
@@ -77,8 +76,9 @@ def block_jacobi(
 
             @spawn(
                 T[iter, i],
-                dependencies=dependencies,
-                placement=[cpu if np.random.rand() < 0.5 else gpu],
+                # T[iter, i],
+                # dependencies=dependencies + [T[iter, i - 1]],
+                placement=[cpu if iter % 2 == 0 else gpu],
                 input=read,
                 inout=write,
             )
@@ -87,23 +87,27 @@ def block_jacobi(
                 interior_read = input_domain[i].array
                 interior_write = output_domain[i].array
 
+                dummy = np.zeros_like(interior_read)
+
                 if i > 0:
-                    input_domain[i][0] = input_domain[i - 1][size - 2]
+                    dummy[0] = input_domain[i - 1][size - 2].array
                 else:
                     interior_read = input_domain[i][1:].array
                     interior_write = output_domain[i][1:].array
 
                 if i < args.workers - 1:
-                    input_domain[i][size - 1] = input_domain[i + 1][1]
+                    dummy[size - 1] = input_domain[i + 1][1].array
                 else:
                     interior_read = input_domain[i][: (size - 1)].array
                     interior_write = output_domain[i][: (size - 1)].array
 
                 # interior_write = jacobi(interior_read, interior_write)
 
+        await T
+
         output_domain, input_domain = input_domain, output_domain
 
-        T.wait()
+        # T.wait()
 
 
 async def test_blocked_jacobi():
@@ -120,7 +124,7 @@ async def test_blocked_jacobi():
     A_blocked_out = asarray_batch(A_blocked_out, base="out")
 
     start_t = time.perf_counter()
-    block_jacobi(A_blocked_in, A_blocked_out, iterations=args.max_iterations)
+    await block_jacobi(A_blocked_in, A_blocked_out, iterations=args.max_iterations)
     end_t = time.perf_counter()
 
     print(f"Time: {end_t - start_t:.4f}", flush=True)
