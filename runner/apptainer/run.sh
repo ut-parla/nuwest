@@ -5,13 +5,13 @@ if [ $# -lt 1 ]; then
     exit 1
 fi
 if [ "$1" == "-h" ]; then
-    echo "Runs the python script in the NUWEST container under the nsys profiler."
+    echo "Runs the python script in the NUWEST container."
     echo "Usage: $0 <python_file> [--use-gpu]"
     exit 1
 fi
 
 if [ "$1" == "--help" ]; then
-    echo "Runs the python script in the NUWEST container under the nsys profiler."
+    echo "Runs the python script in the NUWEST container."
     echo "Usage: $0 <python_file> [--use-gpu]"
     exit 1
 fi
@@ -30,15 +30,8 @@ mkdir -p reports
 
 if [ "$2" == "--use-gpu" ]; then
     echo "Running with GPU support..."
-    docker run --runtime=nvidia --gpus all --volume $(pwd):/app -v /tmp:/tmp --workdir /app utaustin/nuwest python $1
+    apptainer run --cleanenv --nv utaustin_nuwest.sif python $1
 else
     echo "Running without GPU support..."
-    docker run --volume $(pwd):/app -v /tmp:/tmp --workdir /app utaustin/nuwest python $1
+    apptainer run --cleanenv utaustin_nuwest.sif python $1
 fi
-
-# Apptainer Version --  CPU Only
-# apptainer run --cleanenv utaustin_nuwest.sif python $1
-
-# Apptainer Version -- GPU
-# apptainer run --cleanenv --gpu utaustin_nuwest.sif python $1
-

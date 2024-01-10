@@ -19,6 +19,12 @@ We provide a Docker container at [`wlruys/nuwest`](https://hub.docker.com/reposi
 
 ### Usage
 
+If running on a TACC system, we use the [Apptainer](https://apptainer.org/docs/user/latest) container runtime. This can be loaded with the following command:
+
+```bash
+module load tacc-apptainer
+```
+
 #### Pull and rename the container: 
 
 ```bash

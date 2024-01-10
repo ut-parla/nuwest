@@ -33,7 +33,7 @@ if [ "$2" == "--use-gpu" ]; then
     docker run --runtime=nvidia --gpus all --volume $(pwd):/app --workdir /app utaustin/nuwest python $1
 else
     echo "Running without GPU support..."
-    docker run --volume $(pwd):/app --workdir /app utaustin/nuwest python $1
+    docker run -e OPENMP_NUM_THREADS=1 --volume $(pwd):/app --workdir /app utaustin/nuwest python $1
 fi
 
 # Apptainer Version --  CPU Only
