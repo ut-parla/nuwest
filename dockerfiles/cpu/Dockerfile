@@ -27,9 +27,11 @@ RUN python -m pip install -U pip setuptools && \
 RUN git clone https://github.com/kokkos/pykokkos-base
 RUN cd pykokkos-base && python setup.py install -- -DENABLE_LAYOUTS=ON -DENABLE_MEMORY_TRAITS=OFF -DENABLE_VIEW_RANKS=3 -DENABLE_CUDA=OFF -DENABLE_THREADS=OFF -DENABLE_OPENMP=ON -DCMAKE_CXX_STANDARD=17 && cd ..
 
+ADD https://api.github.com/repos/kokkos/pykokkos/git/refs/heads/main pykokkos_version.json
 RUN git clone https://github.com/kokkos/pykokkos
 RUN cd pykokkos && python -m pip install . && cd ..
 
+ADD https://api.github.com/repos/ut-parla/parla-experimental/git/refs/heads/main parla_version.json
 RUN git clone https://github.com/ut-parla/parla-experimental.git
 WORKDIR parla-experimental
 RUN python -m pip install . --verbose

@@ -24,8 +24,12 @@ RUN python -m pip install -U pip setuptools && \
     python -m pip install cupy-cuda11x numpy scikit-build scikit-build-core cython pytest pyyaml psutil numba jupyter ipython jupyterlab notebook && \
     mamba install pybind11>=2.11.1 patchelf>=0.17.2 cmake>=3.28
 
-RUN git clone https://github.com/kokkos/pykokkos-base
-RUN cd pykokkos-base && python setup.py install -- -DENABLE_LAYOUTS=ON -DENABLE_MEMORY_TRAITS=OFF -DENABLE_VIEW_RANKS=3 -DENABLE_CUDA=ON -DENABLE_THREADS=OFF -DKokkos_ARCH_TURING75=ON -DENABLE_OPENMP=ON -DCMAKE_CXX_STANDARD=17 && cd ..
+RUN git clone https://github.com/NaderAlAwar/pykokkos-base.git
+RUN cd pykokkos-base \
+    && git checkout multi_gpu \
+    && python setup.py install -- -DENABLE_LAYOUTS=ON -DENABLE_MEMORY_TRAITS=OFF -DENABLE_VIEW_RANKS=3 -DENABLE_CUDA=ON -DENABLE_THREADS=OFF -DENABLE_MULTI_GPU=4 -DKokkos_ARCH_TURING75=ON -DENABLE_OPENMP=ON -DCMAKE_CXX_STANDARD=17 \
+    && python multi_gpu_copy.py \
+    && cd ..
 
 ADD https://api.github.com/repos/kokkos/pykokkos/git/refs/heads/main pykokkos_version.json
 RUN git clone https://github.com/kokkos/pykokkos
