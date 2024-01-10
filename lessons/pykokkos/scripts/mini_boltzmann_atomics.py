@@ -23,14 +23,6 @@ def main(in_N, in_steps):
     rhs_count = cp.zeros(1).astype(int)
     cpu_E_ar = np.zeros(N)
 
-    # Set up PyKokkos wrappers
-    d_x_ar = pk.array(x_ar)
-    d_v_ar = pk.array(v_ar)
-    d_R_ar = pk.array(R_ar)
-    d_E_ar = pk.array(gpu_E_ar)
-    d_lhs_count = pk.array(lhs_count)
-    d_rhs_count = pk.array(rhs_count)
-
     print("Beginning average position =", cp.mean(x_ar))
     
     for step in range(num_steps):
@@ -45,7 +37,7 @@ def main(in_N, in_steps):
         gpu_E_ar[:] = cp.asarray(cpu_E_ar[:]) 
                     
         # PyKokkos kernel for particle advection + collision
-        advect(N, d_x_ar, d_v_ar, d_E_ar, d_R_ar, d_lhs_count, d_rhs_count, threads_per_block, num_blocks)
+        advect(N, x_ar, v_ar, E_ar, R_ar, lhs_count, rhs_count, threads_per_block, num_blocks)
 
     print("Total number of LHS boundary collisions=",lhs_count[0])
     print("Total number of RHS boundary collisions=",rhs_count[0])
