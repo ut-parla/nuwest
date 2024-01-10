@@ -37,7 +37,7 @@ def main(in_N, in_steps):
         gpu_E_ar[:] = cp.asarray(cpu_E_ar[:]) 
                     
         # PyKokkos kernel for particle advection + collision
-        advect(N, x_ar, v_ar, E_ar, R_ar, lhs_count, rhs_count, threads_per_block, num_blocks)
+        advect(N, x_ar, v_ar, gpu_E_ar, R_ar, lhs_count, rhs_count, threads_per_block, num_blocks)
 
     print("Total number of LHS boundary collisions=",lhs_count[0])
     print("Total number of RHS boundary collisions=",rhs_count[0])
