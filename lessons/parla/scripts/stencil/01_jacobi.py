@@ -99,9 +99,9 @@ def block_jacobi(
 
             # Dataflow
             read_interior = [input_domain[i]]
-            read_left_boundary = [input_domain[i - 1][-2, :]] if i > 0 else []
+            read_left_boundary = [input_domain[i - 1][-2]] if i > 0 else []
             read_right_boundary = (
-                [input_domain[i + 1][1, :]] if i < args.workers - 1 else []
+                [input_domain[i + 1][1]] if i < args.workers - 1 else []
             )
 
             write_interior = [output_domain[i]]
@@ -112,7 +112,7 @@ def block_jacobi(
             @spawn(
                 T[iter, i],
                 dependencies=dependencies,
-                placement=[gpu],
+                placement=[cpu if np.random.rand() < 0.5 else gpu],
                 input=read,
                 inout=write,
             )
@@ -122,16 +122,16 @@ def block_jacobi(
                 interior_write = output_domain[i].array
 
                 if i > 0:
-                    input_domain[i][0, :] = input_domain[i - 1][-2, :]
+                    input_domain[i][0] = input_domain[i - 1][-2]
                 else:
-                    interior_read = input_domain[i][1:, :].array
-                    interior_write = output_domain[i][1:, :].array
+                    interior_read = input_domain[i][1:].array
+                    interior_write = output_domain[i][1:].array
 
                 if i < args.workers - 1:
-                    input_domain[i][-1, :] = input_domain[i + 1][1, :]
+                    input_domain[i][-1] = input_domain[i + 1][1]
                 else:
-                    interior_read = input_domain[i][:-1, :].array
-                    interior_write = output_domain[i][:-1, :].array
+                    interior_read = input_domain[i][:-1].array
+                    interior_write = output_domain[i][:-1].array
 
                 interior_write = jacobi(interior_read, interior_write)
 
