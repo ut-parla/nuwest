@@ -21,10 +21,12 @@ import numba
 import time
 
 from parla import Parla
-from parla.tasks import spawn, TaskSpace, specialize
+from parla.tasks import spawn, AtomicTaskSpace as TaskSpace, specialize, Tasks
 from parla.devices import cpu, gpu
 from parla.array import PArray, asarray_batch
 from numba import cuda
+
+import cupy as cp
 
 
 @specialize
@@ -110,32 +112,32 @@ def block_jacobi(
             @spawn(
                 T[iter, i],
                 dependencies=dependencies,
-                placement=[cpu, gpu],
+                placement=[gpu],
                 input=read,
                 inout=write,
             )
             def step():
                 print(f"Running iteration {iter} on worker {i}", flush=True)
-                interior_read = input_domain[i]
-                interior_write = output_domain[i]
+                interior_read = input_domain[i].array
+                interior_write = output_domain[i].array
 
                 if i > 0:
                     input_domain[i][0, :] = input_domain[i - 1][-2, :]
                 else:
-                    interior_read = input_domain[i][1:, :]
-                    interior_write = output_domain[i][1:, :]
+                    interior_read = input_domain[i][1:, :].array
+                    interior_write = output_domain[i][1:, :].array
 
                 if i < args.workers - 1:
                     input_domain[i][-1, :] = input_domain[i + 1][1, :]
                 else:
-                    interior_read = input_domain[i][:-1, :]
-                    interior_write = output_domain[i][:-1, :]
+                    interior_read = input_domain[i][:-1, :].array
+                    interior_write = output_domain[i][:-1, :].array
 
-                jacobi(input_domain[i].array, output_domain[i].array)
+                interior_write = jacobi(interior_read, interior_write)
 
         output_domain, input_domain = input_domain, output_domain
 
-    return T[iterations - 1, :]
+    T.wait()
 
 
 async def test_blocked_jacobi():
@@ -152,7 +154,7 @@ async def test_blocked_jacobi():
     A_blocked_out = asarray_batch(A_blocked_out)
 
     start_t = time.perf_counter()
-    await block_jacobi(A_blocked_in, A_blocked_out, iterations=args.max_iterations)
+    block_jacobi(A_blocked_in, A_blocked_out, iterations=args.max_iterations)
     end_t = time.perf_counter()
 
     print(f"Time: {end_t - start_t:.4f}", flush=True)

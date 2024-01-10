@@ -83,7 +83,7 @@ def parse_solve_args() -> ap.Namespace:
     parser.add_argument(
         "--max-iterations",
         type=int,
-        default=100,
+        default=1000,
         help="The number of iterations to perform",
     )
     parser.add_argument(
@@ -96,7 +96,7 @@ def parse_solve_args() -> ap.Namespace:
     parser.add_argument(
         "--input",
         type=str,
-        default="matrix.npy",
+        default="domain.npy",
         help="The input file for the matrix",
     )
     parser.add_argument(

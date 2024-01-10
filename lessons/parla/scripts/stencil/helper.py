@@ -8,6 +8,11 @@ import argparse as ap
 import psutil as ps
 import numba as nb
 
+try:
+    import cupy as cp
+except ImportError:
+    cp = None
+
 
 def run(function: Callable[[], Optional[TaskSpace]]):
     """
