@@ -18,13 +18,7 @@ def main(in_N, in_steps):
     v_ar = 0.01*np.random.rand(N)
     E_ar = np.zeros(N)
     R_ar = np.random.rand(N)
-
-    # Set up PyKokkos wrappers
-    d_x_ar = pk.array(x_ar)
-    d_v_ar = pk.array(v_ar)
-    d_E_ar = pk.array(E_ar)
-    d_R_ar = pk.array(R_ar)
-
+    
     print("Beginning average position =",np.mean(x_ar))
 
     for step in range(num_steps):
@@ -36,7 +30,7 @@ def main(in_N, in_steps):
         E_ar.fill(0.01 * np.random.rand())
         
         # PyKokkos kernel for particle advection + collision
-        advect(N, d_x_ar, d_v_ar, d_E_ar, d_R_ar, threads_per_block, num_blocks)
+        advect(N, x_ar, v_ar, E_ar, R_ar, threads_per_block, num_blocks)
 
     print("End average position =", np.mean(x_ar))
 
