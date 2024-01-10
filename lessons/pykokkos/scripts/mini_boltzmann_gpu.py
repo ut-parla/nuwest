@@ -21,12 +21,6 @@ def main(in_N, in_steps):
     gpu_E_ar = cp.zeros(N)
     cpu_E_ar = np.zeros(N)
 
-    # Set up PyKokkos wrappers
-    d_x_ar = pk.array(x_ar)
-    d_v_ar = pk.array(v_ar)
-    d_R_ar = pk.array(R_ar)
-    d_E_ar = pk.array(gpu_E_ar)
-    
     print("Beginning average position =", cp.mean(x_ar))
     
     for step in range(num_steps):
@@ -41,7 +35,7 @@ def main(in_N, in_steps):
         gpu_E_ar[:] = cp.asarray(cpu_E_ar[:])     
         
         # PyKokkos kernel for particle advection + collision
-        advect(N, d_x_ar, d_v_ar, d_E_ar, d_R_ar, threads_per_block, num_blocks)
+        advect(N, x_ar, v_ar, gpu_E_ar, R_ar, threads_per_block, num_blocks)
 
     print("End average position =", cp.mean(x_ar))
 
