@@ -88,7 +88,6 @@ function s_exe() {
                 { echo "help: ${0} scripts/mini_boltzmann_cpu.py -N 100000 -s 10"; return $EC; }
 
         if s_has_cuda; then
-                #docker run -it --runtime=nvidia --gpus all -e "DISPLAY=$DISPLAY" wlruys/nuwest:cpu bash
                 docker run \
                        --runtime=nvidia \
                        --gpus all \
