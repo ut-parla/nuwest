@@ -6,12 +6,12 @@ readonly IMAGE="wlruys/nuwest"
 # ----------
 # Functions.
 
-function s_is_cuda() {
+function s_has_cuda() {
         hash nvcc
 }
 
 function s_tag() {
-        if s_is_cuda; then
+        if s_has_cuda; then
                 echo "ampere"
         else
                 echo "cpu"
@@ -39,7 +39,7 @@ function s_exe() {
         [ -z "${path}" ] && \
                 { echo "help: ${0} scripts/mini_boltzmann_cpu.py -N 100000 -s 10"; return 1; }
 
-        if s_is_cuda; then
+        if s_has_cuda; then
                 #docker run -it --runtime=nvidia --gpus all -e "DISPLAY=$DISPLAY" wlruys/nuwest:cpu bash
                 docker run \
                        --runtime=nvidia \
