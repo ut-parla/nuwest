@@ -1,0 +1,45 @@
+#!/bin/bash
+
+readonly IMAGE="wlruys/nuwest"
+readonly TAG="cpu"
+
+
+# ----------
+# Functions.
+
+function s_set_up() {
+        # Set up the environment.
+        docker >/dev/null 2>&1 || \
+                { echo "missing docker"; return 1; }
+
+        if ! docker images | grep "${IMAGE}" > /dev/null; then
+                docker pull "${IMAGE}:${TAG}" || \
+                        { echo "could not pull the docker image"; return 1; }
+        fi
+
+        find -type d -name "__pycache__" | xargs rm -rf
+        #rm -r pk_cpp
+}
+
+function s_exe() {
+        # Run an example on the given path.
+        local path="${1}"
+
+        [ -z "${path}" ] && \
+                { echo "help: ${0} scripts/mini_boltzmann_cpu.py -N 100000 -s 10"; return 1; }
+
+        docker run -e OPENMP_NUM_THREADS=1 \
+               --volume $(pwd):/app \
+               --workdir /app \
+               "${IMAGE}:${TAG}" \
+               python \
+               "$@" || \
+                { echo "could not run docker"; return 1; }
+}
+
+function main() {
+        s_set_up || return 1
+        s_exe "$@" || return 1
+}
+
+main "$@"
