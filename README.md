@@ -37,9 +37,9 @@ Use the container that best matches your system:
 | System | Container |
 | --- | --- |
 | CPU-only | `wlruys/nuwest:cpu` |
-| CUDA 11.3 (SM70) | `wlruys/nuwest:volta` |
-| CUDA 11.3 (SM75) | `wlruys/nuwest:turing` |
-| CUDA 11.3 (SM80) | `wlruys/nuwest:ampere` |
+| CUDA 11.3 (SM70) | `wlruys/nuwest:volta-muli` |
+| CUDA 11.3 (SM75) | `wlruys/nuwest:turing-multi` |
+| CUDA 11.3 (SM80) | `wlruys/nuwest:ampere-multi` |
 
 TODO: AMD Container for Tioga
 
