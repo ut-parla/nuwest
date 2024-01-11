@@ -17,7 +17,7 @@ function s_set_up() {
                         { echo "could not pull the docker image"; return 1; }
         fi
 
-        find -type d -name "__pycache__" | xargs rm -rf
+        #find -type d -name "__pycache__" | xargs rm -rf
         #rm -r pk_cpp
 }
 
