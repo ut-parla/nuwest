@@ -2,7 +2,7 @@
 
 readonly IMAGE="wlruys/nuwest"
 readonly EC=255
-readonly DEBUG=0
+readonly TRACE=0
 
 
 # ----------
@@ -41,7 +41,7 @@ function s_tag() {
 function s_assume() {
         # Check the environment before any run.
 
-        [ "${DEBUG}" -eq 0 ] && echo "trace: $FUNCNAME"
+        [ "${TRACE}" -eq 0 ] && echo "trace: $FUNCNAME"
 
         # Has to have docker.
         hash docker >/dev/null 2>&1 || \
@@ -61,7 +61,7 @@ function s_set_up() {
         # Set up the environment.
         local tag="${1}"
 
-        [ "${DEBUG}" -eq 0 ] && echo "trace: $FUNCNAME with tag: ${tag}"
+        [ "${TRACE}" -eq 0 ] && echo "trace: $FUNCNAME with tag: ${tag}"
 
         [ -z "${tag}" ] && \
                 { echo "err: tag has to be given"; return $EC; }
@@ -77,7 +77,7 @@ function s_exe() {
         local tag="${1}"
         local path="${2}"
 
-        [ "${DEBUG}" -eq 0 ] && echo "trace: $FUNCNAME with tag: ${tag} and path: ${path}"
+        [ "${TRACE}" -eq 0 ] && echo "trace: $FUNCNAME with tag: ${tag} and path: ${path}"
 
         [ -z "${tag}" ] && \
                 { echo "err: tag has to be given"; return $EC; }
@@ -91,7 +91,7 @@ function s_exe() {
         fi
 
         if s_has_cuda; then
-                [ "${DEBUG}" -eq 0 ] && echo "trace: docker cuda run with tag: ${tag}"
+                [ "${TRACE}" -eq 0 ] && echo "trace: docker cuda run with tag: ${tag}"
                 docker run \
                        --runtime=nvidia \
                        --gpus all \
@@ -103,7 +103,7 @@ function s_exe() {
                        "$@" || \
                         { echo "could not run"; return $EC; }
         else
-                [ "${DEBUG}" -eq 0 ] && echo "trace: docker cpu run with tag: ${tag}"
+                [ "${TRACE}" -eq 0 ] && echo "trace: docker cpu run with tag: ${tag}"
                 docker run \
                        -e OPENMP_NUM_THREADS=1 \
                        --volume $(pwd):/app \
@@ -129,7 +129,7 @@ function s_clean() {
 function main() {
         s_assume || return $EC
 
-        [ "${DEBUG}" -eq 0 ] && echo "trace: $FUNCNAME"
+        [ "${TRACE}" -eq 0 ] && echo "trace: $FUNCNAME"
 
         local tag=$(s_tag)
         s_set_up "${tag}" || return $EC
