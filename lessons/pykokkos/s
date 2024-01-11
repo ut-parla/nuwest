@@ -70,6 +70,8 @@ function s_set_up() {
         if ! docker images | grep "${IMAGE}" | grep "${tag}" > /dev/null; then
                 docker pull "${IMAGE}:${tag}" || \
                         { echo "err: could not pull the docker image"; return $EC; }
+                docker pull "${IMAGE}:${tag}-multi" || \
+                        { echo "err: could not pull the docker image"; return $EC; }
         fi
 }
 
@@ -87,24 +89,30 @@ function s_exe() {
         [ -z "${path}" ] && \
                 { echo "help: ${0} scripts/mini_boltzmann_cpu.py -N 100000 -s 10"; return $EC; }
 
+        if [[ "${path}" = *multigpu* ]]; then
+                tag="${tag}-multi"
+        fi
+
         if s_has_cuda; then
+                [ "${DEBUG}" -eq 0 ] && echo "trace: docker cuda run with tag: ${tag}"
                 docker run \
                        --runtime=nvidia \
                        --gpus all \
                        --volume $(pwd):/app \
                        --workdir /app \
                        --user demo:$(id -g) \
-                       "${IMAGE}:$(s_tag)" \
+                       "${IMAGE}:${tag}" \
                        python \
                        "$@" || \
                         { echo "could not run"; return $EC; }
         else
+                [ "${DEBUG}" -eq 0 ] && echo "trace: docker cpu run with tag: ${tag}"
                 docker run \
                        -e OPENMP_NUM_THREADS=1 \
                        --volume $(pwd):/app \
                        --workdir /app \
                        --user demo:$(id -g) \
-                       "${IMAGE}:$(s_tag)" \
+                       "${IMAGE}:${tag}" \
                        python \
                        "$@" || \
                         { echo "could not run"; return $EC; }
