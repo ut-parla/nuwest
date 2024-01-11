@@ -2,6 +2,7 @@
 
 readonly IMAGE="wlruys/nuwest"
 readonly EC=255
+readonly DEBUG=0
 
 
 # ----------
@@ -9,9 +10,14 @@ readonly EC=255
 
 function s_has_cuda() {
         hash nvcc
+
+        # NOTE: If you want to disable CUDA, uncomment the following:
+        # return 1
 }
 
 function s_cuda_arch() {
+        # Return CUDA arch name.
+
         hash nvidia-smi || \
                 { echo "warn: does not have nvidia-smi"; return $EC; }
 
@@ -19,11 +25,12 @@ function s_cuda_arch() {
                              grep 'Product Architecture' | \
                              cut -f2 -d':' | \
                              sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | tr [:upper:] [:lower:])
-        [ -z "${arch}" ] && echo "ampere" && return 0
         echo "${arch}"
 }
 
 function s_tag() {
+        # Return the docker tag to use depending on the env.
+
         if s_has_cuda; then
                 echo "$(s_cuda_arch)"
         else
@@ -32,23 +39,51 @@ function s_tag() {
 }
 
 function s_assume() {
+        # Check the environment before any run.
+
+        [ "${DEBUG}" -eq 0 ] && echo "trace: $FUNCNAME"
+
+        # Has to have docker.
         hash docker >/dev/null 2>&1 || \
-                { echo "missing docker"; return $EC; }
+                { echo "err: missing docker"; return $EC; }
+
+        # If CUDA, needs one of the supported arch.
+        if s_has_cuda; then
+                local arch=$(s_cuda_arch)
+                [ "${arch}" != "volta" -a "${arch}" != "turing" -a "${arch}" != "ampere" ] && \
+                        { echo "err: unsupproted CUDA arch ${arch}."; return $EC; }
+        fi
+
+        return 0
 }
 
 function s_set_up() {
         # Set up the environment.
+        local tag="${1}"
 
-        if ! docker images | grep "${IMAGE}" | grep "$(s_tag)" > /dev/null; then
-                docker pull "${IMAGE}:$(s_tag)" || \
-                        { echo "could not pull the docker image"; return $EC; }
+        [ "${DEBUG}" -eq 0 ] && echo "trace: $FUNCNAME with tag: ${tag}"
+
+        [ -z "${tag}" ] && \
+                { echo "err: tag has to be given"; return $EC; }
+
+        # Pull images if not available.
+        if ! docker images | grep "${IMAGE}" | grep "${tag}" > /dev/null; then
+                docker pull "${IMAGE}:${tag}" || \
+                        { echo "err: could not pull the docker image"; return $EC; }
         fi
 }
 
 function s_exe() {
         # Run an example on the given path.
-        local path="${1}"
+        local tag="${1}"
+        local path="${2}"
 
+        [ "${DEBUG}" -eq 0 ] && echo "trace: $FUNCNAME with tag: ${tag} and path: ${path}"
+
+        [ -z "${tag}" ] && \
+                { echo "err: tag has to be given"; return $EC; }
+        shift
+        
         [ -z "${path}" ] && \
                 { echo "help: ${0} scripts/mini_boltzmann_cpu.py -N 100000 -s 10"; return $EC; }
 
@@ -59,6 +94,7 @@ function s_exe() {
                        --gpus all \
                        --volume $(pwd):/app \
                        --workdir /app \
+                       --user demo:$(id -g) \
                        "${IMAGE}:$(s_tag)" \
                        python \
                        "$@" || \
@@ -80,9 +116,13 @@ function s_exe() {
 }
 
 function main() {
-        s_set_up || return $EC
-        s_exe "$@" || return $EC
+        s_assume || return $EC
+
+        [ "${DEBUG}" -eq 0 ] && echo "trace: $FUNCNAME"
+
+        local tag=$(s_tag)
+        s_set_up "${tag}" || return $EC
+        s_exe "${tag}" "$@" || return $EC
 }
 
 main "$@"
-
