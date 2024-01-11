@@ -32,6 +32,7 @@ function s_exe() {
                -e OPENMP_NUM_THREADS=1 \
                --volume $(pwd):/app \
                --workdir /app \
+               --user demo:$(id -g) \
                "${IMAGE}:${TAG}" \
                python \
                "$@" || \
