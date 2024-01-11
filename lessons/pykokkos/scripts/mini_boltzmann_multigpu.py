@@ -36,8 +36,7 @@ def main(in_gpus, in_particles, in_steps):
         x_ar_list.append(temp_x_ar)
         v_ar_list.append(temp_v_ar)
         gpu_E_ar_list.append(temp_gpu_E_ar)
-        R_ar_list.append(temp
-                         _R_ar)
+        R_ar_list.append(temp_R_ar)
 
     cpu_E_ar = np.zeros(N)
     
