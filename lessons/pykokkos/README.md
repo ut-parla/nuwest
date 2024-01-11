@@ -28,11 +28,11 @@ We will cover the following features of PyKokkos:
 * workunits, i.e., kernels ([example](/lessons/pykokkos/scripts/mini_boltzmann_cpu.py))
 * parallel processing, i.e., `parallel_for` ([example](/lessons/pykokkos/scripts/mini_boltzmann_cpu.py))
 * interoperability with `numpy` and `cupy` ([example](/lessons/pykokkos/scripts/mini_boltzmann_cpu.py))
-* CPU runs ([example](/lessons/pykokkos/scripts/mini_boltzmann_cpu.py))
-* GPU runs ([example](/lessons/pykokkos/scripts/mini_boltzmann_gpu.py))
+* CPU runs ([example](/lessons/pykokkos/scripts/mini_boltzmann_cpu.py)) `./s scripts/mini_boltzmann_cpu.py -N 100000 -s 10`
+* GPU runs ([example](/lessons/pykokkos/scripts/mini_boltzmann_gpu.py)) `./s scripts/mini_boltzmann_gpu.py -N 100000 -s 10`
 * multi-GPU runs ([example](/lessons/pykokkos/scripts/mini_boltzmann_multigpu.py))
-* atomics ([example](/lessons/pykokkos/scripts/mini_boltzmann_atomics.py))
-* ufuncs ([example](/lessons/pykokkos/scripts/cholesky.py))
+* atomics ([example](/lessons/pykokkos/scripts/mini_boltzmann_atomics.py)) `./s scripts/mini_boltzmann_atomics.py -N 100000 -s 10`
+* ufuncs ([example](/lessons/pykokkos/scripts/cholesky.py)) `./s scripts/cholesky.py -N 100000 -s 10`
 * hierarchical parallelism
 * scratch memory
 * C++ code generation and bindings
