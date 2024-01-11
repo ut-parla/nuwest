@@ -1,24 +1,48 @@
 #!/bin/bash
 
 readonly IMAGE="wlruys/nuwest"
-readonly TAG="cpu"
+readonly EC=255
 
 
 # ----------
 # Functions.
 
+function s_has_cuda() {
+        hash nvcc
+}
+
+function s_cuda_arch() {
+        hash nvidia-smi || \
+                { echo "warn: does not have nvidia-smi"; return $EC; }
+
+        local arch=$(nvidia-smi -q | \
+                             grep 'Product Architecture' | \
+                             cut -f2 -d':' | \
+                             sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | tr [:upper:] [:lower:])
+        [ -z "${arch}" ] && echo "ampere" && return 0
+        echo "${arch}"
+}
+
+function s_tag() {
+        if s_has_cuda; then
+                echo "$(s_cuda_arch)"
+        else
+                echo "cpu"
+        fi
+}
+
+function s_assume() {
+        hash docker >/dev/null 2>&1 || \
+                { echo "missing docker"; return $EC; }
+}
+
 function s_set_up() {
         # Set up the environment.
-        docker >/dev/null 2>&1 || \
-                { echo "missing docker"; return 1; }
 
-        if ! docker images | grep "${IMAGE}" > /dev/null; then
-                docker pull "${IMAGE}:${TAG}" || \
-                        { echo "could not pull the docker image"; return 1; }
+        if ! docker images | grep "${IMAGE}" | grep "$(s_tag)" > /dev/null; then
+                docker pull "${IMAGE}:$(s_tag)" || \
+                        { echo "could not pull the docker image"; return $EC; }
         fi
-
-        #find -type d -name "__pycache__" | xargs rm -rf
-        #rm -r pk_cpp
 }
 
 function s_exe() {
@@ -26,22 +50,39 @@ function s_exe() {
         local path="${1}"
 
         [ -z "${path}" ] && \
-                { echo "help: ${0} scripts/mini_boltzmann_cpu.py -N 100000 -s 10"; return 1; }
+                { echo "help: ${0} scripts/mini_boltzmann_cpu.py -N 100000 -s 10"; return $EC; }
 
-        docker run \
-               -e OPENMP_NUM_THREADS=1 \
-               --volume $(pwd):/app \
-               --workdir /app \
-               --user demo:$(id -g) \
-               "${IMAGE}:${TAG}" \
-               python \
-               "$@" || \
-                { echo "could not run docker"; return 1; }
+        if s_has_cuda; then
+                #docker run -it --runtime=nvidia --gpus all -e "DISPLAY=$DISPLAY" wlruys/nuwest:cpu bash
+                docker run \
+                       --runtime=nvidia \
+                       --gpus all \
+                       --volume $(pwd):/app \
+                       --workdir /app \
+                       "${IMAGE}:$(s_tag)" \
+                       python \
+                       "$@" || \
+                        { echo "could not run"; return $EC; }
+        else
+                docker run \
+                       -e OPENMP_NUM_THREADS=1 \
+                       --volume $(pwd):/app \
+                       --workdir /app \
+                       --user demo:$(id -g) \
+                       "${IMAGE}:$(s_tag)" \
+                       python \
+                       "$@" || \
+                        { echo "could not run"; return $EC; }
+        fi
+
+        #find -type d -name "__pycache__" | xargs rm -rf
+        #rm -r pk_cpp
 }
 
 function main() {
-        s_set_up || return 1
-        s_exe "$@" || return 1
+        s_set_up || return $EC
+        s_exe "$@" || return $EC
 }
 
 main "$@"
+
