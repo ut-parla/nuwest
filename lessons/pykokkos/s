@@ -114,6 +114,13 @@ function s_exe() {
         #rm -r pk_cpp
 }
 
+function s_clean() {
+        # Removes images.
+
+        docker image rm -f wlruys/nuwest:ampere >/dev/null 2>&1
+        docker image rm -f wlruys/nuwest:cpu >/dev/null 2>&1
+}
+
 function main() {
         s_assume || return $EC
 
