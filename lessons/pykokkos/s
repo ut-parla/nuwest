@@ -1,24 +1,35 @@
 #!/bin/bash
 
 readonly IMAGE="wlruys/nuwest"
-readonly TAG="cpu"
 
 
 # ----------
 # Functions.
 
+function s_is_cuda() {
+        hash nvcc
+}
+
+function s_tag() {
+        if s_is_cuda; then
+                echo "ampere"
+        else
+                echo "cpu"
+        fi
+}
+
+function s_assume() {
+        hash docker >/dev/null 2>&1 || \
+                { echo "missing docker"; return 1; }
+}
+
 function s_set_up() {
         # Set up the environment.
-        docker >/dev/null 2>&1 || \
-                { echo "missing docker"; return 1; }
 
-        if ! docker images | grep "${IMAGE}" > /dev/null; then
-                docker pull "${IMAGE}:${TAG}" || \
+        if ! docker images | grep "${IMAGE}" | grep "$(s_tag)" > /dev/null; then
+                docker pull "${IMAGE}:$(s_tag)" || \
                         { echo "could not pull the docker image"; return 1; }
         fi
-
-        #find -type d -name "__pycache__" | xargs rm -rf
-        #rm -r pk_cpp
 }
 
 function s_exe() {
@@ -28,15 +39,31 @@ function s_exe() {
         [ -z "${path}" ] && \
                 { echo "help: ${0} scripts/mini_boltzmann_cpu.py -N 100000 -s 10"; return 1; }
 
-        docker run \
-               -e OPENMP_NUM_THREADS=1 \
-               --volume $(pwd):/app \
-               --workdir /app \
-               --user demo:$(id -g) \
-               "${IMAGE}:${TAG}" \
-               python \
-               "$@" || \
-                { echo "could not run docker"; return 1; }
+        if s_is_cuda; then
+                #docker run -it --runtime=nvidia --gpus all -e "DISPLAY=$DISPLAY" wlruys/nuwest:cpu bash
+                docker run \
+                       --runtime=nvidia \
+                       --gpus all \
+                       --volume $(pwd):/app \
+                       --workdir /app \
+                       "${IMAGE}:$(s_tag)" \
+                       python \
+                       "$@" || \
+                        { echo "could not run"; return 1; }
+        else
+                docker run \
+                       -e OPENMP_NUM_THREADS=1 \
+                       --volume $(pwd):/app \
+                       --workdir /app \
+                       --user demo:$(id -g) \
+                       "${IMAGE}:$(s_tag)" \
+                       python \
+                       "$@" || \
+                        { echo "could not run"; return 1; }
+        fi
+
+        #find -type d -name "__pycache__" | xargs rm -rf
+        #rm -r pk_cpp
 }
 
 function main() {
