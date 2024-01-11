@@ -5,15 +5,21 @@ features of PyKokkos.  Further details, examples, and documentation
 can be found on the [PyKokkos web
 page](https://github.com/kokkos/pykokkos).
 
-
 ### Getting Started
 
 Although you can set up PyKokkos to run natively on your machine, we
 recommend using our Docker images for this tutorial, which will save
 you the installation time.
 
-TODO: depending if we are going to use pykokkos or parla+pykokkos images
+You can setup the environment by running the following command:
+```
+./s
+```
 
+Once that is complete, you will be able to run provided examples like so:
+```
+./s scripts/mini_boltzmann_cpu.py -N 100000 -s 10
+```
 
 ### Features
 
