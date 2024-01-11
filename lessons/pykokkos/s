@@ -28,7 +28,8 @@ function s_exe() {
         [ -z "${path}" ] && \
                 { echo "help: ${0} scripts/mini_boltzmann_cpu.py -N 100000 -s 10"; return 1; }
 
-        docker run -e OPENMP_NUM_THREADS=1 \
+        docker run \
+               -e OPENMP_NUM_THREADS=1 \
                --volume $(pwd):/app \
                --workdir /app \
                "${IMAGE}:${TAG}" \
