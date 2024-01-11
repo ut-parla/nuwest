@@ -45,7 +45,7 @@ function s_assume() {
 
         # Has to have docker.
         hash docker >/dev/null 2>&1 || \
-                { echo "err: missing docker"; return $EC; }
+                { echo "err: docker is not available"; return $EC; }
 
         # If CUDA, needs one of the supported arch.
         if s_has_cuda; then
