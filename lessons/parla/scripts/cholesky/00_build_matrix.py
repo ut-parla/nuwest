@@ -35,7 +35,7 @@ if __name__ == "__main__":
         create_and_save_truth,
     )
 
-    A = build_matrix(args.n, args.seed)
+    A = build_matrix(args.size, args.seed)
     save_matrix(A, args.output)
 
     truth_file = os.path.splitext(args.output)[0] + "_ref.npy"
