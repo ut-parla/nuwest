@@ -51,4 +51,4 @@ and reflective collision with the boundary walls.
 
 #### Stencil
 
-TODO: short explanation of the problem
+Another example we will be illustrating using PyKokkos is a stencil code. For a fixed number of iterations, we apply a stencil kernel followed by a gemv and a dot product operation.
