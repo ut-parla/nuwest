@@ -1,6 +1,7 @@
 #!/bin/bash
 
 readonly IMAGE="wlruys/nuwest"
+readonly EC=255
 
 
 # ----------
@@ -10,9 +11,21 @@ function s_has_cuda() {
         hash nvcc
 }
 
+function s_cuda_arch() {
+        hash nvidia-smi || \
+                { echo "warn: does not have nvidia-smi"; return $EC; }
+
+        local arch=$(nvidia-smi -q | \
+                             grep 'Product Architecture' | \
+                             cut -f2 -d':' | \
+                             sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | tr [:upper:] [:lower:])
+        [ -z "${arch}" ] && echo "ampere" && return 0
+        echo "${arch}"
+}
+
 function s_tag() {
         if s_has_cuda; then
-                echo "ampere"
+                echo "$(s_cuda_arch)"
         else
                 echo "cpu"
         fi
@@ -20,7 +33,7 @@ function s_tag() {
 
 function s_assume() {
         hash docker >/dev/null 2>&1 || \
-                { echo "missing docker"; return 1; }
+                { echo "missing docker"; return $EC; }
 }
 
 function s_set_up() {
@@ -28,7 +41,7 @@ function s_set_up() {
 
         if ! docker images | grep "${IMAGE}" | grep "$(s_tag)" > /dev/null; then
                 docker pull "${IMAGE}:$(s_tag)" || \
-                        { echo "could not pull the docker image"; return 1; }
+                        { echo "could not pull the docker image"; return $EC; }
         fi
 }
 
@@ -37,7 +50,7 @@ function s_exe() {
         local path="${1}"
 
         [ -z "${path}" ] && \
-                { echo "help: ${0} scripts/mini_boltzmann_cpu.py -N 100000 -s 10"; return 1; }
+                { echo "help: ${0} scripts/mini_boltzmann_cpu.py -N 100000 -s 10"; return $EC; }
 
         if s_has_cuda; then
                 #docker run -it --runtime=nvidia --gpus all -e "DISPLAY=$DISPLAY" wlruys/nuwest:cpu bash
@@ -49,7 +62,7 @@ function s_exe() {
                        "${IMAGE}:$(s_tag)" \
                        python \
                        "$@" || \
-                        { echo "could not run"; return 1; }
+                        { echo "could not run"; return $EC; }
         else
                 docker run \
                        -e OPENMP_NUM_THREADS=1 \
@@ -59,7 +72,7 @@ function s_exe() {
                        "${IMAGE}:$(s_tag)" \
                        python \
                        "$@" || \
-                        { echo "could not run"; return 1; }
+                        { echo "could not run"; return $EC; }
         fi
 
         #find -type d -name "__pycache__" | xargs rm -rf
@@ -67,8 +80,9 @@ function s_exe() {
 }
 
 function main() {
-        s_set_up || return 1
-        s_exe "$@" || return 1
+        s_set_up || return $EC
+        s_exe "$@" || return $EC
 }
 
 main "$@"
+
