@@ -66,13 +66,10 @@ function s_set_up() {
         [ -z "${tag}" ] && \
                 { echo "err: tag has to be given"; return $EC; }
 
-        # Pull images if not available.
-        if ! docker images | grep "${IMAGE}" | grep "${tag}" > /dev/null; then
-                docker pull "${IMAGE}:${tag}" || \
-                        { echo "err: could not pull the docker image"; return $EC; }
-                docker pull "${IMAGE}:${tag}-multi" || \
-                        { echo "err: could not pull the docker image"; return $EC; }
-        fi
+        docker pull "${IMAGE}:${tag}" >/dev/null || \
+                { echo "err: could not pull the docker image"; return $EC; }
+        docker pull "${IMAGE}:${tag}-multi" >/dev/null || \
+                { echo "err: could not pull the docker image"; return $EC; }
 }
 
 function s_exe() {
