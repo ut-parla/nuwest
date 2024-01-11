@@ -21,7 +21,7 @@ def main(in_gpus, in_particles, in_steps):
     x_ar_list = []
     v_ar_list = []
     gpu_E_ar_list = []
-    gpu_R_ar_list = []
+    R_ar_list = []
     
     for ng in range(NUM_GPUS):
         print("Setting up data structures on GPU", ng)
@@ -36,7 +36,8 @@ def main(in_gpus, in_particles, in_steps):
         x_ar_list.append(temp_x_ar)
         v_ar_list.append(temp_v_ar)
         gpu_E_ar_list.append(temp_gpu_E_ar)
-        R_ar_list.append(temp_gpu_R_ar)
+        R_ar_list.append(temp
+                         _R_ar)
 
     cpu_E_ar = np.zeros(N)
     
