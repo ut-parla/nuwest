@@ -130,7 +130,7 @@ def block_cholesky(A: List[List[cp.ndarray]]) -> TaskSpace:
     GEMM = TaskSpace("GEMM")
 
     vcus = 1
-    spawn = partial(spawn_task, placement=[gpu, cpu], vcus=vcus)
+    spawn = partial(spawn_task, vcus=vcus)
 
     for j in range(n_blocks):
         for k in range(j):
@@ -140,6 +140,7 @@ def block_cholesky(A: List[List[cp.ndarray]]) -> TaskSpace:
                 dependencies=[TRSM[j, k], SYRK[j, 0:k]],
                 input=[A[j][k]],
                 inout=[A[j][j]],
+                placement=[gpu if np.random.rand() < 0.5 else cpu],
             )
             def t1():
                 A[j][j].array[:] = syrk(A[j][k].array, A[j][k].array, A[j][j].array)
@@ -148,6 +149,7 @@ def block_cholesky(A: List[List[cp.ndarray]]) -> TaskSpace:
             POTRF[j],
             dependencies=[SYRK[j, 0:j]],
             inout=[A[j][j]],
+            placement=[gpu if np.random.rand() < 0.5 else cpu],
         )
         def t2():
             A[j][j].array[:] = potrf(A[j][j].array)
@@ -160,6 +162,7 @@ def block_cholesky(A: List[List[cp.ndarray]]) -> TaskSpace:
                     dependencies=[TRSM[j, k], TRSM[i, k], GEMM[i, j, 0:k]],
                     input=[A[i][k], A[j][k]],
                     inout=[A[i][j]],
+                    placement=[gpu if np.random.rand() < 0.5 else cpu],
                 )
                 def t3():
                     A[i][j].array[:] = gemm(A[i][k].array, A[j][k].array, A[i][j].array)
@@ -169,6 +172,7 @@ def block_cholesky(A: List[List[cp.ndarray]]) -> TaskSpace:
                 dependencies=[GEMM[i, j, 0:j], POTRF[j]],
                 input=[A[j][j]],
                 inout=[A[i][j]],
+                placement=[gpu if np.random.rand() < 0.5 else cpu],
             )
             def t4():
                 A[i][j].array[:] = trsm(A[j][j].array, A[i][j].array)
