@@ -17,7 +17,7 @@ def main(in_gpus, in_particles, in_steps):
     N = in_particles
     num_steps = in_steps
 
-    # Set up data structures on each GPU
+    # Set up data structures on each GPU.
     x_ar_list = []
     v_ar_list = []
     gpu_E_ar_list = []
@@ -45,23 +45,22 @@ def main(in_gpus, in_particles, in_steps):
         print("Beginning average position on GPU", ng, "=", cp.mean(x_ar_list[ng]))
     
     for step in range(num_steps):
-        
-        # Generate random electric field
+        # Generate random electric field.
         cpu_E_ar.fill(0.01 * np.random.rand())
         
-        # Spawn a task on each GPU
+        # Spawn a task on each GPU.
         for ng in range(NUM_GPUS):
             
             cp.cuda.Device(ng).use()
             pk.set_device_id(ng)
 
-            # Draw random numbers with CuPy          
+            # Draw random numbers with CuPy.
             R_ar_list[ng][:] = cp.random.rand(N)  
             
-            # Copy electric field data from CPU to GPU
+            # Copy electric field data from CPU to GPU.
             gpu_E_ar_list[ng][:] = cp.asarray(cpu_E_ar[:]) 
                      
-            # PyKokkos kernel for particle advection + collision
+            # PyKokkos kernel for particle advection + collision.
             advect(N, x_ar_list[ng], v_ar_list[ng], gpu_E_ar_list[ng], R_ar_list[ng], threads_per_block, num_blocks)
 
     for ng in range(NUM_GPUS):

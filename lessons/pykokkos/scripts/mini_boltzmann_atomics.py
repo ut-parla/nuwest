@@ -14,7 +14,7 @@ def main(in_N, in_steps):
     N = in_N
     num_steps = in_steps
 
-    # Set up data structures
+    # Set up data structures.
     x_ar = cp.random.rand(N)
     v_ar = 0.01*cp.random.rand(N)
     R_ar = cp.random.rand(N)
@@ -26,17 +26,16 @@ def main(in_N, in_steps):
     print("Beginning average position =", cp.mean(x_ar))
     
     for step in range(num_steps):
-
-        # Draw random numbers with CuPy
+        # Draw random numbers with CuPy.
         R_ar[:] = cp.random.rand(N)   
 
-        # Generate random electric field
+        # Generate random electric field.
         cpu_E_ar[:] = np.random.rand(N)-0.5
         
-        # Copy electric field data from CPU to GPU
+        # Copy electric field data from CPU to GPU.
         gpu_E_ar[:] = cp.asarray(cpu_E_ar[:]) 
                     
-        # PyKokkos kernel for particle advection + collision
+        # PyKokkos kernel for particle advection + collision.
         advect(N, x_ar, v_ar, gpu_E_ar, R_ar, lhs_count, rhs_count, threads_per_block, num_blocks)
 
     print("Total number of LHS boundary collisions=",lhs_count[0])

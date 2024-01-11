@@ -1,7 +1,8 @@
 import cupy as cp
 import pykokkos as pk
 
-# Taken from https://github.com/spcl/npbench
+# Code taken from https://github.com/spcl/npbench and then revised to
+# show cp vs pk usage.
 
 def kernel(A):
     A[0][0] = pk.sqrt(A[0][0])
@@ -30,6 +31,7 @@ def run():
     pk_arr.fill(1)
     kernel(pk_arr)
     print(pk_arr)
+
 
 if __name__ == "__main__":
     run()

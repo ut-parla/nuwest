@@ -13,7 +13,7 @@ def main(in_N, in_steps):
     N = in_N
     num_steps = in_steps
 
-    # Set up data structures
+    # Set up data structures.
     x_ar = np.random.rand(N)
     v_ar = 0.01*np.random.rand(N)
     E_ar = np.zeros(N)
@@ -23,13 +23,13 @@ def main(in_N, in_steps):
 
     for step in range(num_steps):
 
-        # Draw random numbers with CuPy
+        # Draw random numbers.
         R_ar[:] = np.random.rand(N)
 
-        # Generate random electric field
+        # Generate random electric field.
         E_ar.fill(0.01 * np.random.rand())
         
-        # PyKokkos kernel for particle advection + collision
+        # PyKokkos kernel for particle advection + collision.
         advect(N, x_ar, v_ar, E_ar, R_ar, threads_per_block, num_blocks)
 
     print("End average position =", np.mean(x_ar))
