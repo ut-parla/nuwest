@@ -1,43 +1,48 @@
 #!/bin/bash
 
+# Usage instructions
+usage() {
+    echo "Runs the python script in the NUWEST container under the nsys profiler."
+    echo "Usage: $0 <python_file> [python_script_args] [--use-gpu]"
+}
+
+# Check for minimum arguments
 if [ $# -lt 1 ]; then
-    echo "Usage: $0 <python_file> [--use-gpu]"
-    exit 1
-fi
-if [ "$1" == "-h" ]; then
-    echo "Runs the python script in the NUWEST container under the nsys profiler."
-    echo "Usage: $0 <python_file> [--use-gpu]"
+    usage
     exit 1
 fi
 
-if [ "$1" == "--help" ]; then
-    echo "Runs the python script in the NUWEST container under the nsys profiler."
-    echo "Usage: $0 <python_file> [--use-gpu]"
+# Help options
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+    usage
+    exit 0
+fi
+
+# Check if file exists and is a Python file
+if [ ! -f "$1" ] || [[ $1 != *.py ]]; then
+    echo "File $1 not found or is not a python file!"
     exit 1
 fi
 
-if [ ! -f $1 ]; then
-    echo "File $1 not found!"
-    exit 1
-fi
-
-#Check if file is a python file
-if [[ $1 != *.py ]]; then
-    echo "File $1 is not a python file!"
-    exit 1
-fi
-
-#Extract the python filename without path or extension
+# Extract the python filename without path or extension for report naming
 filename=$(basename -- "$1")
 name="${filename%.*}"
+
+# Check if the last argument is '--use-gpu'
+use_gpu=false
+if [ "${@: -1}" == "--use-gpu" ]; then
+    use_gpu=true
+    # Remove the '--use-gpu' argument
+    set -- "${@:1:$#-1}"
+fi
 
 echo "Running $filename..."
 mkdir -p reports
 
-if [ "$2" == "--use-gpu" ]; then
+if $use_gpu; then
     echo "Running with GPU support..."
-    apptainer run --cleanenv --nv utaustin_nuwest.sif nsys profile --force-overwrite true --trace nvtx,cuda,python-gil -o reports/${name}.nsys-rep python $1
+    apptainer run --cleanenv --nv utaustin_nuwest.sif nsys profile --force-overwrite true --trace nvtx,cuda,python-gil -o reports/${name}.nsys-rep python "$@" 
 else
     echo "Running without GPU support..."
-    apptainer run --cleanenv utaustin_nuwest.sif nsys profile --force-overwrite true --trace nvtx,cuda,python-gil -o reports/${name}.nsys-rep python $1
+    apptainer run --cleanenv utaustin_nuwest.sif nsys profile --force-overwrite true --trace nvtx,cuda,python-gil -o reports/${name}.nsys-rep python "$@" 
 fi
