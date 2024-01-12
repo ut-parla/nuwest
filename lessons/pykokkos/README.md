@@ -34,14 +34,17 @@ down version of a particle Boltzmann solver. (We also provide a more
 complete version of the solver in this repository for completeness,
 but we do not discuss the complex version.)
 
-We model a system of particles in a 1-D domain. At each timestep, a random electric field is drawn, and then particles
-undergo advection in physical space, advection in velocity space, random reflective collision (which flips the direction of their velocity),
-and reflective collision with the boundary walls.
+We model a system of particles in a 1-D domain. At each timestep, a
+random electric field is drawn, and then particles undergo advection
+in physical space, advection in velocity space, random reflective
+collision (which flips the direction of their velocity), and
+reflective collision with the boundary walls.
 
 #### Stencil
 
-Another example we will be illustrating using PyKokkos is a stencil code. For a fixed number of iterations, we apply a stencil kernel followed by a gemv and a dot product operation.
-
+Another example we will be illustrating using PyKokkos is a stencil
+code. For a fixed number of iterations, we apply a stencil kernel
+followed by a gemv and a dot product operation.
 
 ### Features
 
