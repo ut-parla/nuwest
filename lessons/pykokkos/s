@@ -9,7 +9,7 @@ readonly TRACE=0
 # Functions.
 
 function s_has_cuda() {
-        hash nvcc
+        hash nvcc > /dev/null 2>&1
 
         # NOTE: If you want to disable CUDA, uncomment the following:
         # return 1
@@ -68,8 +68,11 @@ function s_set_up() {
 
         docker pull "${IMAGE}:${tag}" >/dev/null || \
                 { echo "err: could not pull the docker image"; return $EC; }
-        docker pull "${IMAGE}:${tag}-multi" >/dev/null || \
-                { echo "err: could not pull the docker image"; return $EC; }
+
+        if [ "${tag}" != "cpu" ]; then
+                docker pull "${IMAGE}:${tag}-multi" >/dev/null || \
+                        { echo "err: could not pull the docker image"; return $EC; }
+        fi
 }
 
 function s_exe() {
