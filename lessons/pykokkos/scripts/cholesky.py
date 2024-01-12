@@ -2,8 +2,8 @@ import cupy as cp
 import numpy as np
 import pykokkos as pk
 
-# Code taken from https://github.com/spcl/npbench and then revised to                                                                                                                                                                                                                                                                                 
-# show cp vs pk usage.                                                                                                                                                                                                                                                                                                                                
+# Code taken from https://github.com/spcl/npbench and then revised to
+# show cp vs pk usage.
 
 def cho_pk(A):
     A[0][0] = pk.sqrt(A[0][0])
