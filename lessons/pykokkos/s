@@ -109,7 +109,6 @@ function s_exe() {
         else
                 [ "${TRACE}" -eq 0 ] && echo "trace: docker cpu run with tag: ${tag}"
                 docker run \
-                       -e MYVAR2=foo \
                        -e CUDA_MANAGED_FORCE_DEVICE_ALLOC=1 \
                        --volume $(pwd):/app \
                        --workdir /app \
