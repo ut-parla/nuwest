@@ -110,6 +110,7 @@ function s_exe() {
                 [ "${TRACE}" -eq 0 ] && echo "trace: docker cpu run with tag: ${tag}"
                 docker run \
                        -e CUDA_MANAGED_FORCE_DEVICE_ALLOC=1 \
+                       -e OPENMP_NUM_THREADS=1 \
                        --volume $(pwd):/app \
                        --workdir /app \
                        --user demo:$(id -g) \
