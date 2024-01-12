@@ -1,4 +1,5 @@
 import cupy as cp
+import numpy as np
 import pykokkos as pk
 
 # Code taken from https://github.com/spcl/npbench and then revised to
@@ -23,14 +24,20 @@ def cho_cp(A):
         A[i, i] = cp.sqrt(A[i, i])
 
 def run():
-    arr = cp.ones((10, 10))
-    cho_cp(arr)
-    print(arr)
+    N = 4
+    A = cp.random.randn(N, N)
+    A = A @ A.T
+    A_np = cp.asnumpy(A)
 
-    arr = pk.View((10, 10))
-    arr.fill(1)
-    cho_pk(arr)
-    print(arr)
+    cho_cp(A)
+    print(A)
+
+    pk.set_default_space(pk.Cuda)
+    B = pk.View((N, N), dtype=pk.float64, layout=pk.LayoutRight)
+    np.copyto(B.data, A_np.data, casting="unsafe")
+
+    cho_pk(B)
+    print(B)
 
 
 if __name__ == "__main__":
