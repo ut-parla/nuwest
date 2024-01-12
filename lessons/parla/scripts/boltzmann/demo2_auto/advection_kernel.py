@@ -7,17 +7,24 @@ import pykokkos as pk
 def pk_advection_kernel(
     tid,
     Nc, 
-    d_x_ar,
-    d_v_ar,
-    d_E_ar,
+    d_x_ar, 
+    d_v_ar, 
+    d_E_ar, 
+    d_R_ar,
     stride,
 ):
     # Looping and doing all the particles 
     for i in range(tid, Nc, stride):
+            
         d_x: float = d_x_ar[i]
         d_v: float = d_v_ar[i]
         d_E: float = d_E_ar[i]
-        
+        d_R: float = d_R_ar[i]
+
+        # Collision - each particle has 10% probability of collision, which flips velocity
+        if (d_R < 0.1):
+            d_v = -1*d_v 
+ 
         # Advection in v-space
         d_v += d_E
 
@@ -42,6 +49,7 @@ def advect(
     d_x_ar,
     d_v_ar,
     d_E_ar,
+    d_R_ar,
     threads_per_block,
     num_blocks,
 ):
@@ -56,5 +64,6 @@ def advect(
         d_x_ar=d_x_ar,
         d_v_ar=d_v_ar,
         d_E_ar=d_E_ar,
+        d_R_ar=d_R_ar,
         stride=num_threads,
     )

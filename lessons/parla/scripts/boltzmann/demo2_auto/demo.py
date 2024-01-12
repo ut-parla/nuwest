@@ -30,6 +30,7 @@ def main(in_gpus, in_N, in_steps):
     # Set up data structures on each GPU
     p_x_ar_list = []
     p_v_ar_list = []
+    p_R_ar_list = []
     p_E_ar_list = []
 
     # Set up data structures on each GPU
@@ -38,55 +39,61 @@ def main(in_gpus, in_N, in_steps):
         
         temp_x_ar = np.random.rand(N)
         temp_v_ar = 0.01*np.random.rand(N)
+        temp_R_ar = np.random.rand(N)
         temp_E_ar = np.zeros(N)
 
         p_temp_x_ar = asarray(temp_x_ar)
         p_temp_v_ar = asarray(temp_v_ar)
-        p_temp_E_ar = asarray(temp_gpu_E_ar)
+        p_temp_R_ar = asarray(temp_R_ar)
+        p_temp_E_ar = asarray(temp_E_ar)
 
-        p_x_ar_list.append(temp_x_ar)
-        p_v_ar_list.append(temp_v_ar)
-        p_E_ar_list.append(temp_gpu_E_ar)
+        p_x_ar_list.append(p_temp_x_ar)
+        p_v_ar_list.append(p_temp_v_ar)
+        p_R_ar_list.append(p_temp_R_ar)
+        p_E_ar_list.append(p_temp_E_ar)
 
     print("\nLaunching main Parla task")
     
     for ng in range(NUM_GPUS):
-        cp.cuda.Device(ng).use()
-        print("Beginning average position on GPU", ng, "=", np.mean(p_ar_list[ng].array))
-    
+        print("Beginning average position on GPU", ng, "=", np.mean(p_x_ar_list[ng].array))
 
-    @spawn(placement=cpu, vcus=0)
+    @spawn(placement=cpu)
     async def main_task():
         mytaskspace = TaskSpace("mytaskspace")
              
         for step in range(num_steps):
-            # Spawn a task on each GPU
+
+            # Task 0: particle kernel on each GPU
             for ng in range(NUM_GPUS):
                 deps0 = [mytaskspace[1,step-1,0]] if step != 0 else []
-                @spawn(mytaskspace[0,step,ng], placement=gpu(ng), dependencies=deps0, input=[p_x_ar_list[ng],p_v_ar_list[ng],p_E_ar_list[ng]])
+                @spawn(mytaskspace[0,step,ng], placement=gpu(ng), dependencies=deps0, input=[p_x_ar_list[ng], p_v_ar_list[ng], p_R_ar_list[ng], p_E_ar_list[ng]])
                 def gpu_task():
                     cp.cuda.Device(ng).use()
                     pk.set_device_id(ng)
     
-                    # Copy EF data from CPU to GPU
-                    gpu_E_ar_list[ng][:] = cp.asarray(cpu_E_ar[:]) 
-            
+                    p_R_ar_list[ng][:] = cp.random.rand(N)
+ 
                     # Advect particles
-                    advect(N, p_x_ar_list[ng].array, p_v_ar_list[ng].array, p_E_ar_list[ng].array, threads_per_block, num_blocks)
+                    advect(N, p_x_ar_list[ng].array, p_v_ar_list[ng].array, p_E_ar_list[ng].array, p_R_ar_list[ng].array, threads_per_block, num_blocks)
 
-            # Spawn task on CPU
+            # Task 1: generate random electric field and generate random numbers on CPU
             deps1 = [mytaskspace[0,step,ng] for ng in range(NUM_GPUS)] 
-            @spawn(mytaskspace[1,step,0], placement=cpu, dependencies=deps1, input=[p_E_ar_list[ng]])
+            @spawn(mytaskspace[1,step,0], placement=cpu, dependencies=deps1, input=[p_E_ar_list[ng], p_R_ar_list[ng]])
             def cpu_task():
-                p_E_ar_list[ng].fill(0.01 * np.random.rand())
+                
+                # Drawn random electric field values
+                p_E_ar_list[ng].array.fill(0.01 * np.random.rand())
+               
+                # Draw random numbers with NumPy 
+                p_R_ar_list[ng].array[:] = np.random.rand(N)
 
         mytaskspace.wait()
         cp.cuda.get_current_stream().synchronize() 
         for ng in range(NUM_GPUS):
-            cp.cuda.Device(ng).use()
-            print("End average position on GPU", ng, "=", cp.mean(x_ar_list[ng]))
+            print("End average position on GPU", ng, "=", np.mean(p_x_ar_list[ng].array))
 
     print("\nComplete, exiting.\n") 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-g", "--num_gpus", type=int, default=1)
