@@ -17,7 +17,7 @@ def main(in_N, in_steps):
     x_ar = np.random.rand(N)
     v_ar = 0.01*np.random.rand(N)
     E_ar = np.zeros(N)
-    R_ar = np.random.rand(N)
+    R_ar = np.zeros(N)
     
     print("Beginning average position =",np.mean(x_ar))
 
