@@ -39,7 +39,7 @@ def main(in_gpus, in_N, in_steps):
         
         temp_x_ar = np.random.rand(N)
         temp_v_ar = 0.01*np.random.rand(N)
-        temp_R_ar = np.random.rand(N)
+        temp_R_ar = np.zeros(N)
         temp_E_ar = np.zeros(N)
 
         p_temp_x_ar = asarray(temp_x_ar)
