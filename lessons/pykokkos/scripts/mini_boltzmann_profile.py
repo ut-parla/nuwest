@@ -1,12 +1,12 @@
 import argparse
 import numpy as np
-
 import pykokkos as pk
-pk.set_default_space(pk.OpenMP)
 
 from advection_kernel import advect
 
 def main(in_N, in_steps):
+    pk.set_default_space(pk.OpenMP)
+
     threads_per_block = 64
     num_blocks = 1024
 

@@ -1,13 +1,13 @@
 import argparse
 import numpy as np
 import cupy as cp
-
 import pykokkos as pk
-pk.set_default_space(pk.Cuda)
 
 from advection_kernel import advect
 
 def main(in_gpus, in_particles, in_steps):
+    pk.set_default_space(pk.Cuda)
+
     NUM_GPUS = in_gpus
     print("Initializing program to run on", NUM_GPUS, " GPU(s)\n")
 

@@ -66,16 +66,7 @@ def run():
         gemv_out = pk.View((N, N, p)) # temporary storage to hold the output of the gemv
 
         pk.parallel_for("second kernel", N * N, inner_kernel, u=u_views, B=B, v=v, f=f_views, w=w_views, gemv_out=gemv_out)
-
         pk.parallel_for("copy", N * N, copy_1D, u=u_views, f=f_views, p=p)
 
 if __name__ == "__main__":
-    # with Profile() as profile:
-    #     run()
-    #     (
-    #         Stats(profile)
-    #         .strip_dirs()
-    #         .sort_stats(SortKey.CUMULATIVE)
-    #         .print_stats()
-    #     )
     run()

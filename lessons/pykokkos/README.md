@@ -61,4 +61,4 @@ We will cover the following features of PyKokkos:
 * hierarchical parallelism
 * scratch memory
 * C++ code generation and bindings
-* profiling
+* profiling `./s scripts/mini_boltzmann_profile.py -N 10 -s 100`

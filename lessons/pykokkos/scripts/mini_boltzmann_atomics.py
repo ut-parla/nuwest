@@ -1,13 +1,13 @@
 import argparse
 import numpy as np
 import cupy as cp
-
 import pykokkos as pk
-pk.set_default_space(pk.Cuda)
 
 from advection_kernel_atomics import advect
 
 def main(in_N, in_steps):
+    pk.set_default_space(pk.Cuda)
+
     threads_per_block = 64
     num_blocks = 1024
 

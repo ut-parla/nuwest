@@ -138,6 +138,7 @@ function s_exe() {
         fi
 
         if [ -f *.dat ]; then
+                # https://github.com/kokkos/kokkos-tools/wiki/SimpleKernelTimer
                 local f=$(ls *.dat)
                 docker run \
                        --volume $(pwd):/app \
