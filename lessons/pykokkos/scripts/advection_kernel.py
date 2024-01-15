@@ -3,7 +3,7 @@ import pykokkos as pk
 @pk.workunit()
 def advection_kernel(
     tid,
-    Nc, 
+    N, 
     x_ar, 
     v_ar, 
     E_ar, 
