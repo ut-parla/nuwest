@@ -17,7 +17,7 @@ def main(in_N, in_steps):
     # Set up data structures.
     x_ar = cp.random.rand(N)
     v_ar = 0.01*cp.random.rand(N)
-    R_ar = cp.random.rand(N)
+    R_ar = cp.zeros(N)
     gpu_E_ar = cp.zeros(N)
     lhs_count = cp.zeros(1).astype(int)
     rhs_count = cp.zeros(1).astype(int)
