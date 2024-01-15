@@ -1,7 +1,5 @@
 import argparse
 import numpy as np
-from cProfile import Profile
-from pstats import SortKey, Stats
 
 import pykokkos as pk
 pk.set_default_space(pk.OpenMP)
@@ -42,10 +40,4 @@ if __name__ == "__main__":
     parser.add_argument("-N", "--num_particles", type=int, default=100000)
     parser.add_argument("-s", "--num_steps", type=int, default=100)
     args = parser.parse_args()
-    with Profile() as profile:
-        main(args.num_particles, args.num_steps)
-        ( Stats(profile).
-          strip_dirs()
-          .sort_stats(SortKey.CUMULATIVE)
-          .print_stats()
-         )
+    main(args.num_particles, args.num_steps)

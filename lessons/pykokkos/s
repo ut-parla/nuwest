@@ -84,19 +84,35 @@ function s_exe() {
 
         [ -z "${tag}" ] && \
                 { echo "err: tag has to be given"; return $EC; }
+        # Remove tag from arguments passed to the application.
         shift
         
         [ -z "${path}" ] && \
                 { echo "help: ${0} scripts/mini_boltzmann_cpu.py -N 100000 -s 10"; return $EC; }
 
+        # An example with multiple GPUs requires diff image.
         if [[ "${path}" = *multigpu* ]]; then
                 tag="${tag}-multi"
         fi
+
+        local envs=""
+        if [[ "${path}" = *profile* ]]; then
+                local profile="/home/demo/kokkos-tools/profiling/simple-kernel-timer/kp_kernel_timer.so"
+        fi
+
+        # Clean before the run.
+        docker run \
+               --volume $(pwd):/app \
+               --workdir /app \
+               --user demo:$(id -g) \
+               "${IMAGE}:${tag}" \
+               rm -f *.dat
 
         if s_has_cuda; then
                 [ "${TRACE}" -eq 0 ] && echo "trace: docker cuda run with tag: ${tag}"
                 docker run \
                        -e CUDA_MANAGED_FORCE_DEVICE_ALLOC=1 \
+                       -e KOKKOS_TOOLS_LIBS="${profile}" \
                        --runtime=nvidia \
                        --gpus all \
                        --volume $(pwd):/app \
@@ -111,6 +127,7 @@ function s_exe() {
                 docker run \
                        -e CUDA_MANAGED_FORCE_DEVICE_ALLOC=1 \
                        -e OPENMP_NUM_THREADS=1 \
+                       -e KOKKOS_TOOLS_LIBS="${profile}" \
                        --volume $(pwd):/app \
                        --workdir /app \
                        --user demo:$(id -g) \
@@ -118,6 +135,16 @@ function s_exe() {
                        python \
                        "$@" || \
                         { echo "could not run"; return $EC; }
+        fi
+
+        if [ -f *.dat ]; then
+                local f=$(ls *.dat)
+                docker run \
+                       --volume $(pwd):/app \
+                       --workdir /app \
+                       --user demo:$(id -g) \
+                       "${IMAGE}:${tag}" \
+                       "/home/demo/kokkos-tools/profiling/simple-kernel-timer/kp_reader" "${f}"
         fi
 
         #find -type d -name "__pycache__" | xargs rm -rf
