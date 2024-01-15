@@ -28,7 +28,7 @@ module load tacc-apptainer
 
 ```bash
 chmod +x runner/docker/*
-./runner/docker/run.sh <container name>
+./runner/docker/install.sh <container name>
 ```
 Use the container that best matches your system:
 
