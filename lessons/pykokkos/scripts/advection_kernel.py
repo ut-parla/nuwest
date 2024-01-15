@@ -4,18 +4,18 @@ import pykokkos as pk
 def advection_kernel(
     tid,
     Nc, 
-    d_x_ar, 
-    d_v_ar, 
-    d_E_ar, 
-    d_R_ar,
+    x_ar, 
+    v_ar, 
+    E_ar, 
+    R_ar,
     stride,
 ):
     # Looping and doing all the particles.
     for i in range(tid, Nc, stride):
-        d_x: float = d_x_ar[i]
-        d_v: float = d_v_ar[i]
-        d_E: float = d_E_ar[i]
-        d_R: float = d_R_ar[i]
+        d_x: float = x_ar[i]
+        d_v: float = v_ar[i]
+        d_E: float = E_ar[i]
+        d_R: float = R_ar[i]
 
         # Collision - each particle has 10% probability of collision, which flips velocity.
         if (d_R < 0.1):
@@ -36,16 +36,16 @@ def advection_kernel(
             d_v = -d_v       
  
         # Put data back into arrays.
-        d_x_ar[i] = d_x
-        d_v_ar[i] = d_v
-        d_E_ar[i] = d_E 
+        x_ar[i] = d_x
+        v_ar[i] = d_v
+        E_ar[i] = d_E 
 
 def advect(
-    Nc,
-    d_x_ar,
-    d_v_ar,
-    d_E_ar,
-    d_R_ar,
+    N,
+    x_ar,
+    v_ar,
+    E_ar,
+    R_ar,
     threads_per_block,
     num_blocks,
 ):
@@ -55,9 +55,9 @@ def advect(
     pk.parallel_for(
         num_threads,
         advection_kernel,
-        Nc=Nc,
-        d_x_ar=d_x_ar,
-        d_v_ar=d_v_ar,
+        N=N,
+        x_ar=x_ar,
+        v_ar=v_ar,
         d_E_ar=d_E_ar,
         d_R_ar=d_R_ar,
         stride=num_threads,
