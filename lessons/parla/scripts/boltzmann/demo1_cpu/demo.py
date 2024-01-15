@@ -54,9 +54,9 @@ def main(in_N, in_steps):
             def cpu_task():
                 E_ar.fill(0.01 * np.random.rand())
 
+        await mytaskspace
         mytaskspace.wait()
-        
-    print("End average position =", np.mean(x_ar))
+        print("End average position =", np.mean(x_ar))
     
     print("Complete, exiting.") 
 

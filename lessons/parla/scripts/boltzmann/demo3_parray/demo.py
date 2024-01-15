@@ -87,12 +87,13 @@ def main(in_gpus, in_N, in_steps):
                 # Draw random numbers with NumPy 
                 p_R_ar_list[ng].array[:] = np.random.rand(N)
 
+        await mytaskspace
         mytaskspace.wait()
         cp.cuda.get_current_stream().synchronize() 
         for ng in range(NUM_GPUS):
-            print("End average position on GPU", ng, "=", np.mean(p_x_ar_list[ng].array))
+            print("End average position on GPU", ng, "=", np.mean(p_x_ar_list[ng].get(cpu(0))))
 
-    print("\nComplete, exiting.\n") 
+        print("\nComplete, exiting.\n") 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

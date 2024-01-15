@@ -90,8 +90,10 @@ def main(in_gpus, in_N, in_steps):
         for ng in range(NUM_GPUS):
             cp.cuda.Device(ng).use()
             print("End average position on GPU", ng, "=", cp.mean(x_ar_list[ng]))
-    
-    print("Complete, exiting.") 
+            cp.cuda.get_current_stream().synchronize()
+     
+        print("Complete, exiting.") 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-g", "--num_gpus", type=int, default=1)
