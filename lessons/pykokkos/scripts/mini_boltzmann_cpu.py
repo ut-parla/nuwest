@@ -4,14 +4,11 @@ import pykokkos as pk
 
 from advection_kernel import advect
 
-def main(in_N, in_steps):
+def main(N, num_steps):
     pk.set_default_space(pk.OpenMP)
 
     threads_per_block = 64
     num_blocks = 1024
-
-    N = in_N
-    num_steps = in_steps
 
     # Set up data structures.
     x_ar = np.random.rand(N)
@@ -22,7 +19,6 @@ def main(in_N, in_steps):
     print("Beginning average position =",np.mean(x_ar))
 
     for step in range(num_steps):
-
         # Draw random numbers.
         R_ar[:] = np.random.rand(N)
 
