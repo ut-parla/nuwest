@@ -13,7 +13,7 @@ def advection_kernel(
     stride,
 ):
     # Looping and doing all the particles.
-    for i in range(tid, Nc, stride):
+    for i in range(tid, N, stride):
         d_x: float = x_ar[i]
         d_v: float = v_ar[i]
         d_E: float = E_ar[i]
