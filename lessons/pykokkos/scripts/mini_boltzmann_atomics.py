@@ -5,14 +5,11 @@ import pykokkos as pk
 
 from advection_kernel_atomics import advect
 
-def main(in_N, in_steps):
+def main(N, num_steps):
     pk.set_default_space(pk.Cuda)
 
     threads_per_block = 64
     num_blocks = 1024
-
-    N = in_N
-    num_steps = in_steps
 
     # Set up data structures.
     x_ar = cp.random.rand(N)

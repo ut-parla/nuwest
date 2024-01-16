@@ -5,7 +5,7 @@ import pykokkos as pk
 
 from advection_kernel import advect
 
-def main(in_gpus, in_particles, in_steps):
+def main(in_gpus, N, num_steps):
     pk.set_default_space(pk.Cuda)
 
     NUM_GPUS = in_gpus
@@ -13,9 +13,6 @@ def main(in_gpus, in_particles, in_steps):
 
     threads_per_block = 64
     num_blocks = 1024
-
-    N = in_particles
-    num_steps = in_steps
 
     # Set up data structures on each GPU.
     x_ar_list = []
