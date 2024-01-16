@@ -58,7 +58,7 @@ def advect(
         N=N,
         x_ar=x_ar,
         v_ar=v_ar,
-        d_E_ar=d_E_ar,
-        d_R_ar=d_R_ar,
+        E_ar=E_ar,
+        R_ar=R_ar,
         stride=num_threads,
     )
