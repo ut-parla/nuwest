@@ -57,10 +57,11 @@ def advect(
     space = pk.Cuda
     current_stream = cp.cuda.get_current_stream()
     execution_space = pk.ExecutionSpaceInstance(space, current_stream)
+    range = pk.RangePolicy(space, 0, num_threads)
 
     # Launch PyKokkos kernel
     pk.parallel_for(
-        num_threads,
+        range,
         pk_advection_kernel,
         N=N,
         x_ar=x_ar,
@@ -68,5 +69,4 @@ def advect(
         E_ar=E_ar,
         R_ar=R_ar,
         stride=num_threads,
-        space=execution_space,
     )
