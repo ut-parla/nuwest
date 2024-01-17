@@ -1,3 +1,12 @@
+"""
+This example extends 03_cholesky_manual.py to use automatic prefetched datamovement. 
+We can do this by using the asarray_batch function to create a batch of Parla Arrays.
+
+These are used as inputs to the tasks.
+This allows Parla to be aware of the data location for scheduling purposes.
+Arrays are automatically moved to the correct device before the task executes.
+"""
+
 import time
 from typing import Optional, List
 from functools import partial

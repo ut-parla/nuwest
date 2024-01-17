@@ -1,3 +1,8 @@
+"""
+This example extends 02_cholesky_cpu.py to use GPUs. 
+As the data could possibly move between devices, we need to use the clone_here function to ensure that the data is on the correct device.
+"""
+
 import time
 from typing import Optional, List
 from functools import partial

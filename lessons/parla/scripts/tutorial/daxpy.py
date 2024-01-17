@@ -113,8 +113,6 @@ async def daxpy_example():
     def check():
         end_t = perf_counter()
         print("Parla: ", end_t - start_t, flush=True)
-        print(out_arr)
-        print(truth_arr)
         print("Check: ", np.allclose(out, truth), flush=True)
 
     await T

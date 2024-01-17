@@ -1,3 +1,7 @@
+"""
+This is a reference implementation of CPU block Cholesky factorization.
+"""
+
 import argparse as ap
 import os
 import time

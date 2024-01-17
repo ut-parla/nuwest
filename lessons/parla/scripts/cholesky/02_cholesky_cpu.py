@@ -1,3 +1,11 @@
+"""
+This takes 01_cholesky_serial.py and adds Parla tasking to it. 
+The first thing to notice is that the code is almost identical. 
+
+We've added a few lines to define task spaces and spawn tasks. 
+Parla uses explicit non-dataflow dependencies between tasks.
+"""
+
 import time
 from typing import Optional, List
 from functools import partial
