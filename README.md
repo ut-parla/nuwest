@@ -87,8 +87,6 @@ If you are running the container on a SLURM cluster, you must start the Jupyter 
 The connection will need to be forwarded back to your local machine via SSH tunneling. 
 This can be done via a ProxyJump to the compute node through the login node.
 
-Sample scripts are provided in `slurm/` to help automate this process.
-
 While we have tested on TACC, note that the firewall settings on your cluster may prevent you from opening and forwarding the necessary ports. 
 
 
