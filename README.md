@@ -2,7 +2,7 @@
 
 This repo contains installation, tutorials, and examples for two main core CS technologies from our PSAAPIII center:
 - [PyKokkos](https://github.com/kokkos/pykokkos): A Python-to-Kokkos interface & JIT compiler 
-- [Parla](https://github.com/ut-parla/parla-experimental): A Python thread-based task programming system for heterogeneous single node development
+- [Parla](https://github.com/ut-parla/parla-experimental): A Python thread-based task programming system for heterogeneous single-node development and prototyping
 
 # Installation
 
