@@ -11,12 +11,13 @@ from parla.cython.tasks import AtomicTaskSpace as TaskSpace
 from parla.tasks import get_current_context
 
 import pykokkos as pk
+
 pk.set_default_space(pk.Cuda)
 
 from advection_kernel import advect
 
-def main(in_gpus, in_N, in_steps):
 
+def main(in_gpus, in_N, in_steps):
     NUM_GPUS = int(in_gpus)
 
     print("Initializing program to run on", NUM_GPUS, " GPU(s)\n")
@@ -36,9 +37,9 @@ def main(in_gpus, in_N, in_steps):
     # Set up data structures on each GPU
     for ng in range(NUM_GPUS):
         print("Setting up data structures corresponding to GPU", ng)
-        
+
         temp_x_ar = np.random.rand(N)
-        temp_v_ar = 0.01*np.random.rand(N)
+        temp_v_ar = 0.01 * np.random.rand(N)
         temp_R_ar = np.zeros(N)
         temp_E_ar = np.zeros(N)
 
@@ -53,47 +54,78 @@ def main(in_gpus, in_N, in_steps):
         p_E_ar_list.append(p_temp_E_ar)
 
     print("\nLaunching main Parla task")
-    
+
     for ng in range(NUM_GPUS):
-        print("Beginning average position on GPU", ng, "=", np.mean(p_x_ar_list[ng].array))
+        print(
+            "Beginning average position on GPU", ng, "=", np.mean(p_x_ar_list[ng].array)
+        )
 
     @spawn(placement=cpu)
     async def main_task():
         mytaskspace = TaskSpace("mytaskspace")
-             
-        for step in range(num_steps):
 
+        for step in range(num_steps):
             # Task 0: particle kernel on each GPU
             for ng in range(NUM_GPUS):
-                deps0 = [mytaskspace[1,step-1,0]] if step != 0 else []
-                @spawn(mytaskspace[0,step,ng], placement=gpu(ng), dependencies=deps0, input=[p_x_ar_list[ng], p_v_ar_list[ng], p_R_ar_list[ng], p_E_ar_list[ng]])
+                deps0 = [mytaskspace[1, step - 1, 0]] if step != 0 else []
+
+                @spawn(
+                    mytaskspace[0, step, ng],
+                    placement=gpu(ng),
+                    dependencies=deps0,
+                    inout=[
+                        p_x_ar_list[ng],
+                        p_v_ar_list[ng],
+                        p_R_ar_list[ng],
+                        p_E_ar_list[ng],
+                    ],
+                )
                 def gpu_task():
                     cp.cuda.Device(ng).use()
                     pk.set_device_id(ng)
-    
+
                     p_R_ar_list[ng][:] = cp.random.rand(N)
- 
+
                     # Advect particles
-                    advect(N, p_x_ar_list[ng].array, p_v_ar_list[ng].array, p_E_ar_list[ng].array, p_R_ar_list[ng].array, threads_per_block, num_blocks)
+                    advect(
+                        N,
+                        p_x_ar_list[ng].array,
+                        p_v_ar_list[ng].array,
+                        p_E_ar_list[ng].array,
+                        p_R_ar_list[ng].array,
+                        threads_per_block,
+                        num_blocks,
+                    )
 
             # Task 1: generate random electric field and generate random numbers on CPU
-            deps1 = [mytaskspace[0,step,ng] for ng in range(NUM_GPUS)] 
-            @spawn(mytaskspace[1,step,0], placement=cpu, dependencies=deps1, input=[p_E_ar_list[ng], p_R_ar_list[ng]])
+            deps1 = [mytaskspace[0, step, ng] for ng in range(NUM_GPUS)]
+
+            @spawn(
+                mytaskspace[1, step, 0],
+                placement=cpu,
+                dependencies=deps1,
+                inout=[p_E_ar_list[ng], p_R_ar_list[ng]],
+            )
             def cpu_task():
-                
                 # Drawn random electric field values
                 p_E_ar_list[ng].array.fill(0.01 * np.random.rand())
-               
-                # Draw random numbers with NumPy 
+
+                # Draw random numbers with NumPy
                 p_R_ar_list[ng].array[:] = np.random.rand(N)
 
         await mytaskspace
         mytaskspace.wait()
-        cp.cuda.get_current_stream().synchronize() 
+        cp.cuda.get_current_stream().synchronize()
         for ng in range(NUM_GPUS):
-            print("End average position on GPU", ng, "=", np.mean(p_x_ar_list[ng].get(cpu(0))))
+            print(
+                "End average position on GPU",
+                ng,
+                "=",
+                np.mean(p_x_ar_list[ng].get(cpu(0))),
+            )
 
-        print("\nComplete, exiting.\n") 
+        print("\nComplete, exiting.\n")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
