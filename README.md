@@ -24,10 +24,12 @@ If running on a TACC system, we use the [Apptainer](https://apptainer.org/docs/u
 module load tacc-apptainer
 ```
 
+We provide scripts for both an `apptainer` and `docker` container runtime at `runner/apptainer` and `runner/docker` respectively. Below we show instructions with the `docker` runtime, but the `apptainer` runtime can be used by replacing `docker` with `apptainer` in the commands below.
+
 #### Pull and rename the container: 
 
 ```bash
-chmod +x runner/docker/*
+chmod +x runner/docker/*.sh
 ./runner/docker/install.sh <container name>
 ```
 Use the container that best matches your system:
@@ -40,24 +42,12 @@ Use the container that best matches your system:
 | CUDA 11.3 (SM75) | `wlruys/nuwest:turing-multi` |
 | CUDA 11.3 (SM80) | `wlruys/nuwest:ampere-multi` |
 
-TODO: AMD Container for Tioga
-
 #### Run a script
 
 ```bash
 ./runner/docker/run.sh lessons/parla/scripts/01_hello.py
 ```
 This will run the script in the container and print the output to the terminal.
-
-The `--use-gpu` flag is available to run on a GPU-enabled container.
-
-
-#### Profile a script
-
-```bash
-./runner/docker/profile.sh lessons/parla/scripts/01_hello.py
-```
-The profile trace will be saved to `reports/<script name>.nsys-rep`.
 
 The `--use-gpu` flag is available to run on a GPU-enabled container.
 
@@ -88,7 +78,6 @@ The connection will need to be forwarded back to your local machine via SSH tunn
 This can be done via a ProxyJump to the compute node through the login node.
 
 While we have tested on TACC, note that the firewall settings on your cluster may prevent you from opening and forwarding the necessary ports. 
-
 
 ## Installing from Source
 
