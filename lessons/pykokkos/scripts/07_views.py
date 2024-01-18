@@ -5,9 +5,13 @@ import pykokkos as pk
 def add(i: int, v: pk.View1D[int], x: int):
     v[i] += x
 
-if __name__ == "__main__":
+def main():
     n = 10
     v = pk.View([n], int)
     v.fill(0)
 
     pk.parallel_for(n, add, v=v, x=1)
+    print(v)
+
+if __name__ == "__main__":
+    main()
