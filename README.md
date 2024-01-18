@@ -2,7 +2,7 @@
 
 This repo contains installation, tutorials, and examples for two main core CS technologies from our PSAAPIII center:
 - [PyKokkos](https://github.com/kokkos/pykokkos): A Python-to-Kokkos interface & JIT compiler 
-- [Parla](https://github.com/ut-parla/parla-experimental): A Python thread-based task programming system for heterogeneous single node development
+- [Parla](https://github.com/ut-parla/parla-experimental): Python Libary for task parallel programming for heterogeneous single-node development
 
 # Installation
 
@@ -86,8 +86,6 @@ If you are running the container on a SLURM cluster, you must start the Jupyter 
 
 The connection will need to be forwarded back to your local machine via SSH tunneling. 
 This can be done via a ProxyJump to the compute node through the login node.
-
-Sample scripts are provided in `slurm/` to help automate this process.
 
 While we have tested on TACC, note that the firewall settings on your cluster may prevent you from opening and forwarding the necessary ports. 
 

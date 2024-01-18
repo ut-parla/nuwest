@@ -32,7 +32,7 @@ function s_tag() {
         # Return the docker tag to use depending on the env.
 
         if s_has_cuda; then
-                echo "$(s_cuda_arch)"
+                echo "$(s_cuda_arch)-multi"
         else
                 echo "cpu"
         fi
@@ -70,7 +70,7 @@ function s_set_up() {
                 { echo "err: could not pull the docker image"; return $EC; }
 
         if [ "${tag}" != "cpu" ]; then
-                docker pull "${IMAGE}:${tag}-multi" >/dev/null || \
+                docker pull "${IMAGE}:${tag}" >/dev/null || \
                         { echo "err: could not pull the docker image"; return $EC; }
         fi
 }
@@ -89,11 +89,6 @@ function s_exe() {
         
         [ -z "${path}" ] && \
                 { echo "help: ${0} scripts/mini_boltzmann_cpu.py -N 100000 -s 10"; return $EC; }
-
-        # An example with multiple GPUs requires diff image.
-        if [[ "${path}" = *multigpu* ]]; then
-                tag="${tag}-multi"
-        fi
 
         local envs=""
         if [[ "${path}" = *profile* ]]; then

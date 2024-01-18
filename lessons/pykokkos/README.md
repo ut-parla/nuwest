@@ -59,6 +59,6 @@ We will cover the following features of PyKokkos:
 * atomics ([example](/lessons/pykokkos/scripts/mini_boltzmann_atomics.py)) `./s scripts/mini_boltzmann_atomics.py -N 100000 -s 10`
 * ufuncs ([example](/lessons/pykokkos/scripts/cholesky.py)) `./s scripts/cholesky.py -N 100000 -s 10`
 * hierarchical parallelism
-* scratch memory
+* scratch memory (optional)
 * C++ code generation and bindings
 * profiling `./s scripts/mini_boltzmann_profile.py -N 10 -s 100`
