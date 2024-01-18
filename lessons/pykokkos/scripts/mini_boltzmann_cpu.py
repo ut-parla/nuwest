@@ -19,7 +19,7 @@ def main(N, num_steps):
     print("Beginning average position =",np.mean(x_ar))
 
     for step in range(num_steps):
-        # Draw random numbers.
+        # Draw random numbers with NumPy.
         R_ar[:] = np.random.rand(N)
 
         # Generate random electric field.
