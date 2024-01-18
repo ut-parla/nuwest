@@ -21,11 +21,24 @@ Once that is complete, you will be able to run provided examples like so:
 ./s scripts/mini_boltzmann_cpu.py -N 100000 -s 10
 ```
 
-### Examples
+### Intro Examples
+
+These examples are from the PyKokoks [documentation
+page](https://kokkos.github.io/pykokkos/index.html):
+
+* `./s scripts/01_hello.py`
+* `./s scripts/02_reduce.py`
+* `./s scripts/03_scan.py`
+* `./s scripts/04_range_policy.py`
+* `./s scripts/05_team_policy.py`
+* `./s scripts/06_cupy.py`
+* `./s scripts/07_views.py`
+
+
+### Larger Examples
 
 We will be covering the aforementioned features using two examples:
-simplified Boltzmann solver and stencil computation.  The latter one
-will be an exercise for the audience.
+simplified Boltzmann solver and stencil computation.
 
 #### Boltzmann Simplified
 
@@ -47,6 +60,7 @@ reflective collision with the boundary walls.
 Another example we will be illustrating using PyKokkos is a stencil
 code. For a fixed number of iterations, we apply a stencil kernel
 followed by a gemv and a dot product operation.
+
 
 ### Features
 
