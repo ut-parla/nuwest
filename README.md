@@ -178,7 +178,7 @@ pip install cupy-cuda11x #(optional, for GPU support)
 git clone https://github.com/ut-parla/parla-experimental
 cd parla-experimental
 git submodule update --init --recursive
-python -m pip install .
+python -m pip install . --verbose
 cd ..
 ```
 
