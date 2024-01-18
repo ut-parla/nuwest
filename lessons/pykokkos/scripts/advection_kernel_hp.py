@@ -8,16 +8,17 @@ def advection_kernel(
     v_ar, 
     E_ar, 
     R_ar,
-    stride,
 ):
     j: int = team_member.league_rank()
+    k: int = team_member.team_size()
 
     def inner(i: int):
         # Looping and doing all the particles.
-        d_x: float = x_ar[i]
-        d_v: float = v_ar[i]
-        d_E: float = E_ar[i]
-        d_R: float = R_ar[i]
+        ix: int = j * k + i
+        d_x: float = x_ar[ix]
+        d_v: float = v_ar[ix]
+        d_E: float = E_ar[ix]
+        d_R: float = R_ar[ix]
         
         # Collision - each particle has 10% probability of collision, which flips velocity.
         if (d_R < 0.1):
@@ -38,10 +39,10 @@ def advection_kernel(
             d_v = -d_v       
         
         # Put data back into arrays.
-        x_ar[i] = d_x
-        v_ar[i] = d_v
-        E_ar[i] = d_E
-    pk.parallel_for(pk.TeamThreadRange(team_member, stride), inner)
+        x_ar[ix] = d_x
+        v_ar[ix] = d_v
+        E_ar[ix] = d_E
+    pk.parallel_for(pk.TeamThreadRange(team_member, k), inner)
 
 def advect(
     N,
@@ -54,12 +55,11 @@ def advect(
 ):
     # Launch PyKokkos kernel.
     pk.parallel_for(
-        pk.TeamPolicy(num_blocks, pk.AUTO),
+        pk.TeamPolicy(num_blocks, 2),
         advection_kernel,
         N=N,
         x_ar=x_ar,
         v_ar=v_ar,
         E_ar=E_ar,
         R_ar=R_ar,
-        stride=threads_per_block,
     )

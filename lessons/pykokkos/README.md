@@ -58,7 +58,7 @@ We will cover the following features of PyKokkos:
 * multi-GPU runs ([example](/lessons/pykokkos/scripts/mini_boltzmann_multigpu.py))
 * atomics ([example](/lessons/pykokkos/scripts/mini_boltzmann_atomics.py)) `./s scripts/mini_boltzmann_atomics.py -N 100000 -s 10`
 * ufuncs ([example](/lessons/pykokkos/scripts/cholesky.py)) `./s scripts/cholesky.py -N 100000 -s 10`
-* hierarchical parallelism
+* hierarchical parallelism ([example](/lessons/pykokkos/scripts/mini_boltzmann_hp.py)) `./s scripts/mini_boltzmann_hp.py -N 100000 -s 10`
 * scratch memory (optional)
 * C++ code generation and bindings
 * profiling `./s scripts/mini_boltzmann_profile.py -N 10 -s 100`
