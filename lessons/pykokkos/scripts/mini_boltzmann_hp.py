@@ -19,7 +19,6 @@ def main(N, num_steps):
     print("Beginning average position =",np.mean(x_ar))
 
     for step in range(num_steps):
-
         # Draw random numbers.
         R_ar[:] = np.random.rand(N)
 
