@@ -1,6 +1,6 @@
 import pykokkos as pk
 
-@pk.workunit()
+@pk.workunit
 def advection_kernel(
     team_member,
     N, 

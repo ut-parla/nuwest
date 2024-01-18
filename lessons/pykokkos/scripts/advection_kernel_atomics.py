@@ -1,6 +1,6 @@
 import pykokkos as pk
 
-@pk.workunit()
+@pk.workunit
 def advection_kernel(
     tid,
     N, 
@@ -55,7 +55,6 @@ def advect(
     threads_per_block,
     num_blocks,
 ):
-
     num_threads = num_blocks * threads_per_block
     
     # Launch PyKokkos kernel

@@ -55,7 +55,7 @@ We will cover the following features of PyKokkos:
 * interoperability with `numpy` and `cupy` ([example](/lessons/pykokkos/scripts/mini_boltzmann_cpu.py))
 * CPU runs ([example](/lessons/pykokkos/scripts/mini_boltzmann_cpu.py)) `./s scripts/mini_boltzmann_cpu.py -N 100000 -s 10`
 * GPU runs ([example](/lessons/pykokkos/scripts/mini_boltzmann_gpu.py)) `./s scripts/mini_boltzmann_gpu.py -N 100000 -s 10`
-* multi-GPU runs ([example](/lessons/pykokkos/scripts/mini_boltzmann_multigpu.py))
+* multi-GPU runs ([example](/lessons/pykokkos/scripts/mini_boltzmann_multigpu.py)) `./s scripts/mini_boltzmann_multigpu.py -N 100000 -s 10 -g 1`
 * atomics ([example](/lessons/pykokkos/scripts/mini_boltzmann_atomics.py)) `./s scripts/mini_boltzmann_atomics.py -N 100000 -s 10`
 * ufuncs ([example](/lessons/pykokkos/scripts/cholesky.py)) `./s scripts/cholesky.py -N 100000 -s 10`
 * hierarchical parallelism ([example](/lessons/pykokkos/scripts/mini_boltzmann_hp.py)) `./s scripts/mini_boltzmann_hp.py -N 100000 -s 10`
